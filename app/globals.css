@@ -1,0 +1,133 @@
+/*
+  Tailwind v4 — incremental-migration setup.
+
+  Strategy: the legacy Cosion/Bootstrap stylesheets are pulled into a dedicated
+  `legacy` cascade layer that sits BELOW Tailwind's layers. Because any later
+  layer wins over an earlier one regardless of selector specificity, every
+  Tailwind utility (and our component reset) reliably overrides the old CSS —
+  including Bootstrap utility classes that share Tailwind names (.bg-primary,
+  .text-primary, .container, ...). No source-order or specificity juggling.
+
+  These stay as runtime `@import url()`s (Tailwind preserves them rather than
+  inlining) so their relative url() references to fonts/images keep resolving
+  from /assets exactly as when they were plain <link>s.
+
+  We deliberately skip Preflight (Tailwind's `base` reset): it would override
+  the legacy `legacy`-layer base styles on the 17 not-yet-migrated pages and
+  change their appearance. Instead, the scoped reset at the bottom fixes the few
+  element-level leaks, limited to the migrated header/footer/main subtrees.
+
+  Bootstrap ships its utility classes with `!important` (e.g.
+  `.bg-primary{...!important}`). In the cascade, an `!important` declaration in
+  an *earlier* layer beats `!important` in a later one (importance reverses layer
+  order), and any `!important` beats a normal declaration regardless of layer.
+  So a plain lower `legacy` layer is NOT enough — Bootstrap's `.bg-primary`
+  would still win over our `.bg-primary`. The fix: generate Tailwind utilities as
+  `!important` too AND declare the `utilities` layer FIRST, so importance-reversal
+  puts our utilities ahead of Bootstrap's. Non-important legacy rules (element
+  selectors, the theme's component classes) are still overridden normally.
+
+  Layer order below is the *declaration* order. For normal declarations later
+  layers win (so `components` reset > `legacy`); for important declarations
+  earlier layers win (so `utilities` !important > `legacy` !important).
+  Once every page is migrated and the legacy CSS is dropped, replace this whole
+  block with a plain `@import "tailwindcss";` (and drop the `important` flag).
+*/
+@layer utilities, legacy, theme, components;
+
+@import "tailwindcss/utilities.css" layer(utilities) important;
+
+@import url("/assets/css/bootstrap.min.css") layer(legacy);
+@import url("/assets/css/fontawesome.css") layer(legacy);
+@import url("/assets/webfonts/flat-icon/flaticon_bantec.css") layer(legacy);
+@import url("/assets/css/animate.css") layer(legacy);
+@import url("/assets/css/swiper-bundle.min.css") layer(legacy);
+@import url("/assets/css/slick.css") layer(legacy);
+@import url("/assets/css/magnific-popup.css") layer(legacy);
+@import url("/assets/sass/style.css") layer(legacy);
+
+@import "tailwindcss/theme.css" layer(theme);
+
+@theme {
+  /* Fonts — values are injected by next/font (see app/layout.tsx) */
+  --font-body: var(--font-inter), sans-serif;
+  --font-heading: var(--font-outfit), sans-serif;
+
+  /* Brand palette — ported verbatim from the theme's :root variables */
+  --color-primary: #252060; /* deep indigo — primary-color-1/3/4 */
+  --color-accent: #0048dc; /* bright blue — primary-color-2 */
+  --color-body: #6a726f; /* body copy grey — p-color */
+  --color-ink: #14133b; /* near-black heading — color-3 */
+
+  /* Surface tints */
+  --color-mint: #edf4f2; /* color-2 */
+  --color-sky: #e6eeff; /* color-4 */
+  --color-haze: #f5f8ff; /* color-6 */
+
+  /* Borders */
+  --color-line: #e9e9e8; /* border-color-2 */
+
+  /* Elevation */
+  --shadow-card: 0px 25px 70px rgba(0, 0, 0, 0.08); /* box-shadow-1 */
+  --shadow-float: 0px 10px 70px rgba(0, 0, 0, 0.1); /* box-shadow-2 */
+}
+
+/*
+  Scoped reset for migrated subtrees. Preflight is off, so the legacy layer's
+  element rules still touch bare tags — the theme even styles every
+  <button>/<input> as a filled navy control (style.css ~L177). Placed in the
+  `components` layer (above `legacy`, below `utilities`) so it overrides the old
+  element rules while any Tailwind utility class still overrides it.
+*/
+@layer components {
+  header :is(ul, ol),
+  footer :is(ul, ol),
+  main :is(ul, ol) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Bootstrap Reboot underlines every <a> and colors it link-blue. Reset that
+     inside migrated subtrees so links inherit color and lose the underline;
+     Tailwind utilities (text-accent, underline, ...) re-apply where intended. */
+  header a,
+  footer a,
+  main a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  header :is(button, input, [type="submit"], [type="button"]),
+  footer :is(button, input, [type="submit"], [type="button"]),
+  main :is(button, input, [type="submit"], [type="button"]) {
+    background: none;
+    border: 0;
+    padding: 0;
+    color: inherit;
+  }
+}
+
+/* Homepage redesign — a rounded, editorial layout which deliberately keeps
+   Zhavilah's content and existing image library at the centre of the page. */
+.zbg-home { --z-green:#075b4b; --z-green-dark:#064438; --z-lime:#d9ef77; --z-ink:#142f2a; --z-muted:#667b75; color:var(--z-ink); overflow:hidden; }
+.zbg-shell { width:min(1200px, calc(100% - 40px)); margin-inline:auto; }
+.zbg-home h1,.zbg-home h2,.zbg-home h3,.zbg-home p { margin:0; }
+.zbg-home h1,.zbg-home h2,.zbg-home h3 { font-family:var(--font-outfit), sans-serif; color:var(--z-ink); }
+.zbg-home p { color:var(--z-muted); line-height:1.75; }
+.zbg-eyebrow { display:flex; align-items:center; gap:9px; color:var(--z-green); font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+.zbg-eyebrow span { width:28px; height:2px; background:var(--z-green); }
+.zbg-button,.zbg-outline-button { display:inline-flex; align-items:center; justify-content:center; gap:10px; border-radius:999px; padding:15px 23px; background:var(--z-green); color:#fff !important; font-size:14px; font-weight:700; transition:.25s ease; }
+.zbg-button svg,.zbg-outline-button svg,.zbg-text-link svg { width:17px; height:17px; transition:transform .25s; }
+.zbg-button:hover,.zbg-outline-button:hover { background:var(--z-green-dark); transform:translateY(-2px); }.zbg-button:hover svg,.zbg-outline-button:hover svg,.zbg-text-link:hover svg { transform:translateX(4px); }
+.zbg-hero { background:#e8f2e8; position:relative; padding:79px 0 70px; }.zbg-hero-grid { display:grid; grid-template-columns:1.02fr .98fr; align-items:center; gap:50px; }.zbg-hero-copy { padding:20px 0; }.zbg-hero h1 { max-width:650px; margin:18px 0 20px; font-size:clamp(43px,5.1vw,72px); line-height:1.06; letter-spacing:-.055em; }.zbg-hero h1 em { color:var(--z-green); font-style:normal; }.zbg-hero-copy>p { max-width:575px; font-size:17px; }.zbg-hero-actions { display:flex; flex-wrap:wrap; align-items:center; gap:23px; margin-top:31px; }.zbg-call { display:flex; align-items:center; gap:10px; }.zbg-call>span { display:grid; place-items:center; width:45px; height:45px; border-radius:50%; color:var(--z-green); background:#fff; }.zbg-call svg { width:19px; }.zbg-call small { color:var(--z-muted); font-size:11px; line-height:1.3; }.zbg-call strong { display:block; color:var(--z-ink); font-size:14px; margin-top:3px; }.zbg-hero-proof { display:flex; align-items:center; gap:13px; margin-top:45px; color:var(--z-muted); font-size:12px; }.zbg-hero-proof b { color:var(--z-ink); }.zbg-avatars { display:flex; }.zbg-avatars img { width:34px; height:34px; object-fit:cover; border:2px solid #e8f2e8; border-radius:50%; margin-left:-8px; }.zbg-avatars img:first-child { margin-left:0; }
+.zbg-hero-visual { height:510px; position:relative; border-radius:220px 220px 24px 24px; overflow:visible; background:var(--z-green); }.zbg-hero-visual>img { width:100%; height:100%; object-fit:cover; border-radius:220px 220px 24px 24px; mix-blend-mode:normal; }.zbg-orbit { position:absolute; border:1px solid rgba(255,255,255,.42); border-radius:50%; z-index:1; }.zbg-orbit-one { width:470px; height:470px; left:50%; top:45px; transform:translateX(-50%); }.zbg-orbit-two { width:360px; height:360px; left:50%; top:98px; transform:translateX(-50%); }.zbg-float-card { position:absolute; z-index:2; display:flex; align-items:center; gap:11px; padding:12px 16px; border-radius:14px; background:#fff; box-shadow:0 15px 35px #093b301f; font-size:12px; }.zbg-float-card svg { width:29px; height:29px; color:var(--z-green); }.zbg-float-card b { display:block; font-size:14px; }.zbg-float-top { top:106px; left:-30px; }.zbg-float-bottom { bottom:34px; right:-28px; }.zbg-float-bottom strong { color:var(--z-green); font-size:30px; line-height:1; }.zbg-float-bottom span { font-size:12px; line-height:1.2; }
+.zbg-intro { display:grid; grid-template-columns:1.1fr .75fr; align-items:end; gap:70px; padding:115px 0 58px; }.zbg-intro h2,.zbg-about h2,.zbg-training h2,.zbg-faq h2,.zbg-section-center h2 { margin-top:15px; font-size:clamp(33px,3.7vw,51px); line-height:1.1; letter-spacing:-.045em; }.zbg-intro>p { padding-bottom:6px; font-size:16px; }
+.zbg-service-area { padding:35px 0 116px; background:linear-gradient(#fff 34%,#f4f7ef 34%); }.zbg-service-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }.zbg-service-card { position:relative; min-height:355px; padding:27px; display:flex; flex-direction:column; justify-content:flex-end; border-radius:18px; overflow:hidden; background:var(--z-green-dark); }.zbg-service-card:after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(6,68,56,.04) 12%,rgba(4,45,37,.92) 100%); z-index:0; }.zbg-service-card>img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .5s; }.zbg-service-card:hover>img { transform:scale(1.06); }.zbg-service-card>div { z-index:1; }.zbg-service-icon { position:absolute; z-index:2 !important; top:22px; left:22px; display:grid; place-items:center; width:47px; height:47px; border-radius:12px; color:var(--z-green); background:var(--z-lime); }.zbg-service-icon svg { width:23px; }.zbg-service-card h3 { color:#fff; margin-bottom:8px; font-size:23px; }.zbg-service-card p { color:rgba(255,255,255,.78); font-size:13px; line-height:1.55; }.zbg-service-card a { display:inline-flex; align-items:center; gap:7px; margin-top:15px; color:var(--z-lime) !important; font-size:13px; font-weight:700; }.zbg-service-card a svg { width:15px; }.zbg-center { text-align:center; margin-top:34px; }.zbg-outline-button { border:1px solid var(--z-green); color:var(--z-green) !important; background:transparent; }.zbg-outline-button:hover { color:#fff !important; }
+.zbg-stats { padding:48px 0; background:var(--z-green); }.zbg-stats-grid { display:grid; grid-template-columns:repeat(4,1fr); }.zbg-stats-grid>div { text-align:center; border-left:1px solid rgba(255,255,255,.19); }.zbg-stats-grid>div:first-child { border:0; }.zbg-stats strong { display:block; color:#fff; font:700 46px/1 var(--font-outfit),sans-serif; }.zbg-stats strong span { color:var(--z-lime); }.zbg-stats p { margin-top:6px; color:rgba(255,255,255,.71); font-size:13px; }
+.zbg-about { display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:100px; padding:120px 0; }.zbg-about-image { position:relative; }.zbg-about-image>img { width:100%; height:500px; object-fit:cover; border-radius:18px; }.zbg-about-image>div { position:absolute; left:-25px; bottom:30px; width:230px; padding:22px; border-radius:14px; background:var(--z-lime); }.zbg-about-image span { display:block; color:var(--z-green); font-size:11px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }.zbg-about-image strong { display:block; margin-top:7px; font:700 19px/1.2 var(--font-outfit),sans-serif; }.zbg-about-copy>p { margin-top:22px; }.zbg-about-copy ul { display:grid; gap:12px; padding:0; margin:26px 0 31px; list-style:none; }.zbg-about-copy li { display:flex; align-items:center; gap:10px; font-size:14px; font-weight:600; }.zbg-about-copy li svg { width:19px; color:var(--z-green); }
+.zbg-training { background:#eff4ee; padding:100px 0; }.zbg-training-wrap { display:grid; grid-template-columns:.9fr 1.1fr; align-items:center; gap:90px; }.zbg-training h2 { max-width:480px; }.zbg-training p { margin:20px 0 29px; max-width:480px; }.zbg-training-image { height:355px; position:relative; }.zbg-training-image>img { width:100%; height:100%; object-fit:cover; border-radius:180px 18px 18px 18px; }.zbg-training-image button { position:absolute; inset:50% auto auto 50%; transform:translate(-50%,-50%); display:grid; place-items:center; width:68px; height:68px; border-radius:50%; background:var(--z-lime); color:var(--z-green); }.zbg-training-image button svg { width:24px; fill:currentColor; }
+.zbg-faq { display:grid; grid-template-columns:.75fr 1.25fr; gap:100px; padding:120px 0; }.zbg-faq-heading p { margin:20px 0; }.zbg-text-link { display:inline-flex; gap:7px; align-items:center; color:var(--z-green) !important; font-size:14px; font-weight:800; }.zbg-faq-item { border-bottom:1px solid #d9e2dc; }.zbg-faq-item button { display:flex; align-items:center; width:100%; gap:14px; padding:22px 0; text-align:left; font:700 17px var(--font-outfit),sans-serif; color:var(--z-ink); }.zbg-faq-item button span { color:var(--z-green); font-size:12px; }.zbg-faq-item button svg { width:18px; margin-left:auto; transition:transform .2s; }.zbg-faq-item.is-open button svg { transform:rotate(180deg); }.zbg-faq-item p { padding:0 30px 22px; font-size:14px; }
+.zbg-testimonials { padding:100px 0 120px; background:#f7f8f2; }.zbg-section-center { max-width:660px; margin:0 auto 48px; text-align:center; }.zbg-section-center .zbg-eyebrow { justify-content:center; }.zbg-testimonial-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }.zbg-testimonial-grid article { padding:29px; border-radius:16px; background:#fff; }.zbg-quote { color:var(--z-green); font:800 55px/.6 Georgia,serif; }.zbg-testimonial-grid article>p { margin:17px 0 24px; font-size:15px; }.zbg-person { display:flex; align-items:center; gap:11px; }.zbg-person img { width:40px; height:40px; object-fit:cover; border-radius:50%; }.zbg-person strong { font-size:14px; }.zbg-person small { display:block; margin-top:3px; color:var(--z-muted); font-size:11px; font-weight:400; }
+@media (max-width:900px) { .zbg-hero-grid,.zbg-about,.zbg-training-wrap,.zbg-faq { grid-template-columns:1fr; gap:45px; }.zbg-hero { padding-top:50px; }.zbg-hero-visual { max-width:560px; width:85%; justify-self:center; }.zbg-intro { gap:25px; }.zbg-service-grid { grid-template-columns:repeat(2,1fr); }.zbg-about-image { max-width:600px; }.zbg-about { padding:85px 0; }.zbg-faq { padding:85px 0; } }
+@media (max-width:580px) { .zbg-shell { width:min(100% - 30px,1200px); }.zbg-hero h1 { font-size:42px; }.zbg-hero-visual { height:390px; width:88%; border-radius:160px 160px 20px 20px; }.zbg-hero-visual>img { border-radius:160px 160px 20px 20px; }.zbg-orbit-one { width:360px; height:360px; top:35px; }.zbg-orbit-two { width:280px; height:280px; top:72px; }.zbg-float-top { left:-15px; top:65px; }.zbg-float-bottom { right:-16px; }.zbg-intro { grid-template-columns:1fr; padding:76px 0 35px; }.zbg-service-grid,.zbg-testimonial-grid { grid-template-columns:1fr; }.zbg-service-area { padding-bottom:75px; }.zbg-stats-grid { grid-template-columns:repeat(2,1fr); gap:28px 0; }.zbg-stats-grid>div:nth-child(3) { border-left:0; }.zbg-about-image>img { height:390px; }.zbg-about-image>div { left:12px; bottom:14px; }.zbg-training { padding:75px 0; }.zbg-training-image { height:280px; }.zbg-faq-item button { font-size:15px; }.zbg-testimonials { padding:75px 0; } }
