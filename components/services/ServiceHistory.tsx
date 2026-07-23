@@ -17,19 +17,19 @@ function Block({ block }: { block: HistoryBlock }) {
       <img
         src={block.src}
         alt={block.alt}
-        className="w-full rounded-xl object-cover shadow-card"
+        className="h-72 w-full rounded-2xl object-cover shadow-[0_18px_55px_rgba(8,63,52,0.1)]"
       />
     );
   }
   return (
-    <div className="rounded-xl border border-line bg-white p-6 shadow-card">
+    <div className="rounded-2xl border border-brand-line bg-white p-8 shadow-[0_18px_55px_rgba(8,63,52,0.06)]">
       {block.eyebrow && (
-        <span className="mb-2 inline-block text-sm font-semibold uppercase tracking-wide text-accent">
+        <span className="mb-2 inline-block text-xs font-extrabold uppercase tracking-[0.12em] text-brand">
           {block.eyebrow}
         </span>
       )}
-      <h5 className="font-heading text-xl font-semibold text-primary">{block.heading}</h5>
-      <p className="mt-3 leading-relaxed text-body">{block.text}</p>
+      <h3 className="font-heading text-2xl font-semibold text-brand-ink">{block.heading}</h3>
+      <p className="mt-3 leading-relaxed text-brand-muted">{block.text}</p>
     </div>
   );
 }
@@ -40,7 +40,7 @@ export default function ServiceHistory({
   columns: [HistoryBlock[], HistoryBlock[]];
 }) {
   return (
-    <section className="py-20">
+    <section className="bg-brand-haze py-20">
       <div className="mx-auto grid max-w-7xl gap-6 px-6 lg:grid-cols-2">
         {columns.map((col, i) => (
           <div key={i} className="flex flex-col gap-6">

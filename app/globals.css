@@ -1,59 +1,18 @@
 /*
-  Tailwind v4 — incremental-migration setup.
-
-  Strategy: the legacy Cosion/Bootstrap stylesheets are pulled into a dedicated
-  `legacy` cascade layer that sits BELOW Tailwind's layers. Because any later
-  layer wins over an earlier one regardless of selector specificity, every
-  Tailwind utility (and our component reset) reliably overrides the old CSS —
-  including Bootstrap utility classes that share Tailwind names (.bg-primary,
-  .text-primary, .container, ...). No source-order or specificity juggling.
-
-  These stay as runtime `@import url()`s (Tailwind preserves them rather than
-  inlining) so their relative url() references to fonts/images keep resolving
-  from /assets exactly as when they were plain <link>s.
-
-  We deliberately skip Preflight (Tailwind's `base` reset): it would override
-  the legacy `legacy`-layer base styles on the 17 not-yet-migrated pages and
-  change their appearance. Instead, the scoped reset at the bottom fixes the few
-  element-level leaks, limited to the migrated header/footer/main subtrees.
-
-  Bootstrap ships its utility classes with `!important` (e.g.
-  `.bg-primary{...!important}`). In the cascade, an `!important` declaration in
-  an *earlier* layer beats `!important` in a later one (importance reverses layer
-  order), and any `!important` beats a normal declaration regardless of layer.
-  So a plain lower `legacy` layer is NOT enough — Bootstrap's `.bg-primary`
-  would still win over our `.bg-primary`. The fix: generate Tailwind utilities as
-  `!important` too AND declare the `utilities` layer FIRST, so importance-reversal
-  puts our utilities ahead of Bootstrap's. Non-important legacy rules (element
-  selectors, the theme's component classes) are still overridden normally.
-
-  Layer order below is the *declaration* order. For normal declarations later
-  layers win (so `components` reset > `legacy`); for important declarations
-  earlier layers win (so `utilities` !important > `legacy` !important).
-  Once every page is migrated and the legacy CSS is dropped, replace this whole
-  block with a plain `@import "tailwindcss";` (and drop the `important` flag).
+  Pure Tailwind v4 setup. The legacy Cosion/Bootstrap/jQuery stylesheets have
+  been fully removed now that every page is a real React + Tailwind component,
+  so we use the standard import (Preflight included) with no cascade-layer or
+  `!important` juggling. The remaining custom CSS below is the hand-authored
+  design system for the homepage, header and footer.
 */
-@layer utilities, legacy, theme, components;
-
-@import "tailwindcss/utilities.css" layer(utilities) important;
-
-@import url("/assets/css/bootstrap.min.css") layer(legacy);
-@import url("/assets/css/fontawesome.css") layer(legacy);
-@import url("/assets/webfonts/flat-icon/flaticon_bantec.css") layer(legacy);
-@import url("/assets/css/animate.css") layer(legacy);
-@import url("/assets/css/swiper-bundle.min.css") layer(legacy);
-@import url("/assets/css/slick.css") layer(legacy);
-@import url("/assets/css/magnific-popup.css") layer(legacy);
-@import url("/assets/sass/style.css") layer(legacy);
-
-@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss";
 
 @theme {
   /* Fonts — values are injected by next/font (see app/layout.tsx) */
   --font-body: var(--font-inter), sans-serif;
   --font-heading: var(--font-outfit), sans-serif;
 
-  /* Brand palette — ported verbatim from the theme's :root variables */
+  /* Brand palette */
   --color-primary: #252060; /* deep indigo — primary-color-1/3/4 */
   --color-accent: #0048dc; /* bright blue — primary-color-2 */
   --color-body: #6a726f; /* body copy grey — p-color */
@@ -67,45 +26,20 @@
   /* Borders */
   --color-line: #e9e9e8; /* border-color-2 */
 
+  /* Brand green — the editorial palette shared by the homepage and every
+     inner page. Used directly as Tailwind utilities (bg-brand, text-brand,
+     border-brand-line, ...) so pages need no per-page CSS. */
+  --color-brand: #075b4b;
+  --color-brand-dark: #064438;
+  --color-brand-lime: #d9ef77;
+  --color-brand-ink: #142f2a;
+  --color-brand-muted: #667b75;
+  --color-brand-haze: #f7f9f4;
+  --color-brand-line: #dfe9df;
+
   /* Elevation */
   --shadow-card: 0px 25px 70px rgba(0, 0, 0, 0.08); /* box-shadow-1 */
   --shadow-float: 0px 10px 70px rgba(0, 0, 0, 0.1); /* box-shadow-2 */
-}
-
-/*
-  Scoped reset for migrated subtrees. Preflight is off, so the legacy layer's
-  element rules still touch bare tags — the theme even styles every
-  <button>/<input> as a filled navy control (style.css ~L177). Placed in the
-  `components` layer (above `legacy`, below `utilities`) so it overrides the old
-  element rules while any Tailwind utility class still overrides it.
-*/
-@layer components {
-  header :is(ul, ol),
-  footer :is(ul, ol),
-  main :is(ul, ol) {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  /* Bootstrap Reboot underlines every <a> and colors it link-blue. Reset that
-     inside migrated subtrees so links inherit color and lose the underline;
-     Tailwind utilities (text-accent, underline, ...) re-apply where intended. */
-  header a,
-  footer a,
-  main a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  header :is(button, input, [type="submit"], [type="button"]),
-  footer :is(button, input, [type="submit"], [type="button"]),
-  main :is(button, input, [type="submit"], [type="button"]) {
-    background: none;
-    border: 0;
-    padding: 0;
-    color: inherit;
-  }
 }
 
 /* Homepage redesign — a rounded, editorial layout which deliberately keeps
@@ -131,3 +65,8 @@
 .zbg-testimonials { padding:100px 0 120px; background:#f7f8f2; }.zbg-section-center { max-width:660px; margin:0 auto 48px; text-align:center; }.zbg-section-center .zbg-eyebrow { justify-content:center; }.zbg-testimonial-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }.zbg-testimonial-grid article { padding:29px; border-radius:16px; background:#fff; }.zbg-quote { color:var(--z-green); font:800 55px/.6 Georgia,serif; }.zbg-testimonial-grid article>p { margin:17px 0 24px; font-size:15px; }.zbg-person { display:flex; align-items:center; gap:11px; }.zbg-person img { width:40px; height:40px; object-fit:cover; border-radius:50%; }.zbg-person strong { font-size:14px; }.zbg-person small { display:block; margin-top:3px; color:var(--z-muted); font-size:11px; font-weight:400; }
 @media (max-width:900px) { .zbg-hero-grid,.zbg-about,.zbg-training-wrap,.zbg-faq { grid-template-columns:1fr; gap:45px; }.zbg-hero { padding-top:50px; }.zbg-hero-visual { max-width:560px; width:85%; justify-self:center; }.zbg-intro { gap:25px; }.zbg-service-grid { grid-template-columns:repeat(2,1fr); }.zbg-about-image { max-width:600px; }.zbg-about { padding:85px 0; }.zbg-faq { padding:85px 0; } }
 @media (max-width:580px) { .zbg-shell { width:min(100% - 30px,1200px); }.zbg-hero h1 { font-size:42px; }.zbg-hero-visual { height:390px; width:88%; border-radius:160px 160px 20px 20px; }.zbg-hero-visual>img { border-radius:160px 160px 20px 20px; }.zbg-orbit-one { width:360px; height:360px; top:35px; }.zbg-orbit-two { width:280px; height:280px; top:72px; }.zbg-float-top { left:-15px; top:65px; }.zbg-float-bottom { right:-16px; }.zbg-intro { grid-template-columns:1fr; padding:76px 0 35px; }.zbg-service-grid,.zbg-testimonial-grid { grid-template-columns:1fr; }.zbg-service-area { padding-bottom:75px; }.zbg-stats-grid { grid-template-columns:repeat(2,1fr); gap:28px 0; }.zbg-stats-grid>div:nth-child(3) { border-left:0; }.zbg-about-image>img { height:390px; }.zbg-about-image>div { left:12px; bottom:14px; }.zbg-training { padding:75px 0; }.zbg-training-image { height:280px; }.zbg-faq-item button { font-size:15px; }.zbg-testimonials { padding:75px 0; } }
+
+/* Global navigation and footer refresh */
+.zbg-site-header { --z-green:#075b4b; --z-deep:#063e34; --z-lime:#d9ef77; --z-ink:#142f2a; }.zbg-header-top { background:#f3f7f1 !important; color:#567069 !important; border-bottom:1px solid #dce8dc; }.zbg-header-top a { color:#4e6761 !important; font-size:12px; font-weight:600; }.zbg-header-top a svg { display:grid; width:25px; height:25px; padding:6px; border-radius:50%; background:#fff; color:var(--z-green); box-shadow:0 2px 8px rgba(5,63,52,.08); }.zbg-header-top a:hover { color:var(--z-green) !important; }.zbg-header-top .flex:last-child { gap:5px !important; }.zbg-header-top .flex:last-child a { display:grid; place-items:center; width:27px; height:27px; border-radius:50%; color:var(--z-green) !important; transition:.2s; }.zbg-header-top .flex:last-child a svg { width:14px; height:14px; padding:0; border-radius:0; background:transparent; box-shadow:none; }.zbg-header-top .flex:last-child a:hover { background:var(--z-green); color:#fff !important; }.zbg-header-top .flex:last-child a:hover svg { color:#fff; }.zbg-site-header>div:nth-child(2) { border:0 !important; background:rgba(255,255,255,.96) !important; box-shadow:0 5px 24px rgba(5,63,52,.08) !important; backdrop-filter:blur(12px); }.zbg-site-header nav a,.zbg-site-header nav button { color:var(--z-ink) !important; }.zbg-site-header nav a:hover,.zbg-site-header nav button:hover,.zbg-site-header nav .text-accent { color:var(--z-green) !important; }.zbg-site-header nav>div>a,.zbg-site-header nav>div>button { position:relative; }.zbg-site-header nav>div>a:after,.zbg-site-header nav>div>button:after { content:""; position:absolute; right:0; bottom:2px; left:0; height:2px; border-radius:3px; background:var(--z-green); transform:scaleX(0); transform-origin:left; transition:transform .2s; }.zbg-site-header nav>div>a:hover:after,.zbg-site-header nav>div>button:hover:after,.zbg-site-header nav .text-accent:after { transform:scaleX(1); }.zbg-site-header nav ul { border:1px solid #dce7dc !important; border-radius:14px !important; padding:8px !important; box-shadow:0 18px 40px rgba(5,63,52,.12) !important; }.zbg-site-header nav ul a:hover,.zbg-site-header nav ul .text-accent { background:#eff5ed !important; }.zbg-site-header .bg-primary { border-radius:999px !important; background:var(--z-green) !important; box-shadow:0 7px 18px rgba(7,91,75,.2); }.zbg-site-header .bg-primary:hover { background:var(--z-deep) !important; }.zbg-site-header .lg\:hidden { color:var(--z-green) !important; }.zbg-site-header .fixed .bg-white { background:#f8fbf6 !important; box-shadow:-14px 0 40px rgba(5,63,52,.15) !important; }.zbg-site-header .fixed nav a,.zbg-site-header .fixed nav button { color:var(--z-ink) !important; border-color:#dae5da !important; }.zbg-site-header .fixed nav a:hover,.zbg-site-header .fixed nav button:hover { color:var(--z-green) !important; }
+.zbg-site-footer { --z-green:#075b4b; --z-deep:#063e34; --z-lime:#d9ef77; --z-ink:#142f2a; --z-muted:#b7d0c6; }.zbg-site-footer>div:first-child { position:relative; overflow:hidden; background:var(--z-green) !important; }.zbg-site-footer>div:first-child:before,.zbg-site-footer>div:first-child:after { content:""; position:absolute; border:1px solid rgba(217,239,119,.3); border-radius:50%; }.zbg-site-footer>div:first-child:before { width:450px; height:450px; top:-300px; left:-110px; }.zbg-site-footer>div:first-child:after { width:330px; height:330px; right:-70px; bottom:-220px; }.zbg-site-footer>div:first-child>div { position:relative; z-index:1; }.zbg-site-footer>div:first-child h2 { max-width:680px; margin-inline:auto; font:700 clamp(29px,3.5vw,43px)/1.13 var(--font-outfit),sans-serif; letter-spacing:-.04em; }.zbg-site-footer>div:first-child h2 span { color:var(--z-lime) !important; }.zbg-site-footer form input { border-radius:999px !important; border:0 !important; padding:14px 21px !important; }.zbg-site-footer form button { border-radius:999px !important; background:var(--z-lime) !important; color:var(--z-deep) !important; }.zbg-site-footer form button:hover { background:#fff !important; color:var(--z-green) !important; }.zbg-site-footer>div:nth-child(2) { background:var(--z-deep) !important; color:#fff !important; }.zbg-site-footer>div:nth-child(2) p,.zbg-site-footer>div:nth-child(2) a { color:var(--z-muted) !important; }.zbg-site-footer>div:nth-child(2) h5 { position:relative; color:#fff !important; padding-bottom:12px; }.zbg-site-footer>div:nth-child(2) h5:after { content:""; position:absolute; bottom:0; left:0; width:30px; height:2px; background:var(--z-lime); }.zbg-site-footer>div:nth-child(2) a:hover { color:var(--z-lime) !important; }.zbg-site-footer>div:nth-child(2) .bg-white { background:rgba(255,255,255,.1) !important; color:#fff !important; }.zbg-site-footer>div:nth-child(2) .bg-white:hover { background:var(--z-lime) !important; color:var(--z-deep) !important; }.zbg-site-footer>div:nth-child(2) .bg-primary { background:var(--z-lime) !important; color:var(--z-deep) !important; }.zbg-site-footer>div:nth-child(3) { border-top:1px solid rgba(255,255,255,.1); background:#042e27 !important; color:#b7d0c6 !important; }.zbg-site-footer>div:nth-child(3) a { color:#fff !important; }.zbg-site-footer .fixed .bg-primary { background:var(--z-green) !important; }
+@media (max-width:640px) { .zbg-site-footer>div:first-child { text-align:left; }.zbg-site-footer>div:first-child form { margin-inline:0; }.zbg-site-header>div:nth-child(2)>div { padding-inline:18px !important; } }

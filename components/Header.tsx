@@ -18,10 +18,10 @@ export default function Header() {
   const [servicesOpen, setServicesOpen] = useState(false);
 
   return (
-    <header className="relative z-40">
+    <header className="zbg-site-header relative z-40">
       {/* Top bar */}
-      <div className="hidden bg-primary text-white/90 md:block">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-2.5 text-sm">
+      <div className="zbg-header-top hidden bg-primary text-white/90 md:block">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-2 text-sm">
           <div className="flex items-center gap-6">
             <a href={CONTACT.emailHref} className="flex items-center gap-2 hover:text-white">
               <Mail className="size-4" /> {CONTACT.email}

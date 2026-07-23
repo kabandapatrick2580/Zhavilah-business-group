@@ -35,48 +35,13 @@ export const metadata: Metadata = {
   },
 };
 
-// NOTE: the legacy Cosion/Bootstrap stylesheets are imported via app/globals.css
-// (into a low-priority `legacy` cascade layer) rather than linked here, so that
-// Tailwind utilities reliably override them. See globals.css for the rationale.
-
-// Legacy jQuery libraries, in original load order. Retired as their features
-// are replaced by React equivalents on migrated pages.
-const LEGACY_SCRIPTS = [
-  "/assets/js/jquery-3.7.1.min.js",
-  "/assets/js/bootstrap.min.js",
-  "/assets/js/jquery.counterup.min.js",
-  "/assets/js/popper.min.js",
-  "/assets/js/progressbar.min.js",
-  "/assets/js/jquery.magnific-popup.min.js",
-  "/assets/js/swiper-bundle.min.js",
-  "/assets/js/slick.min.js",
-  "/assets/js/isotope.pkgd.min.js",
-  "/assets/js/jquery.fancybox.min.js",
-  "/assets/js/jquery.waypoints.min.js",
-  "/assets/js/main.js",
-  "/assets/js/zbg-init.js",
-];
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
-      <head>
-        {/* remixicon supplies the .ri-* icons used by legacy pages + the footer
-            WhatsApp button. Its classes don't collide with Tailwind, so a plain
-            link is fine. */}
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css"
-          precedence="app"
-        />
-      </head>
       <body className="font-body text-body antialiased">
         <Header />
         {children}
         <Footer />
-        {LEGACY_SCRIPTS.map((src) => (
-          <script key={src} src={src} async={false} />
-        ))}
       </body>
     </html>
   );

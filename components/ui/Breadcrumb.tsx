@@ -14,25 +14,27 @@ export default function Breadcrumb({
 }) {
   return (
     <section
-      className="relative bg-cover bg-center py-24"
+      className="relative isolate flex min-h-[300px] items-center bg-cover bg-center"
       style={{ backgroundImage: `url(${image})` }}
     >
-      <div className="absolute inset-0 bg-primary/80" />
-      <div className="relative mx-auto max-w-7xl px-6 text-white">
-        <h1 className="font-heading text-4xl font-semibold sm:text-5xl">{title}</h1>
-        <nav className="mt-4 flex items-center gap-2 text-sm">
-          <Link href="/" className="flex items-center gap-1.5 opacity-90 hover:opacity-100">
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-dark/95 to-brand-dark/70" />
+      <div className="mx-auto w-full max-w-7xl px-6 py-16 text-white">
+        <h1 className="font-heading text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-[3.5rem]">
+          {title}
+        </h1>
+        <nav className="mt-4 flex flex-wrap items-center gap-2 text-sm text-white/80">
+          <Link href="/" className="flex items-center gap-1.5 transition hover:text-white">
             <Home className="size-4" /> Home
           </Link>
           {trail.map((c) => (
             <span key={c.label} className="flex items-center gap-2">
-              <ChevronRight className="size-4 opacity-70" />
+              <ChevronRight className="size-4 text-brand-lime" />
               {c.href ? (
-                <Link href={c.href} className="opacity-90 hover:opacity-100">
+                <Link href={c.href} className="transition hover:text-white">
                   {c.label}
                 </Link>
               ) : (
-                <span className="opacity-90">{c.label}</span>
+                <span>{c.label}</span>
               )}
             </span>
           ))}
