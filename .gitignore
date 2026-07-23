@@ -9,3 +9,6 @@ npm-debug.log*
 .vercel
 next-env.d.ts
 .claude/
+
+# TypeScript incremental build cache — regenerated on every build
+tsconfig.tsbuildinfo
