@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Plus, TrendingUp } from "lucide-react";
+import { Plus, TrendingUp } from "lucide-react";
+import { CurtainReveal, Reveal, Stagger, StaggerItem } from "@/components/motion/primitives";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Faq, { type FaqItem } from "@/components/ui/Faq";
@@ -25,9 +27,9 @@ const values: { title: string; text: string }[] = [
   },
 ];
 
-const brands: { src: string; alt: string }[] = [
-  { src: "/assets/img/about/IMUVERA LOGO.jpeg", alt: "Imuvera" },
-  { src: "/assets/img/about/SALAMA LOGO.PNG", alt: "Salama" },
+const brands: { src: string; alt: string; width: number; height: number }[] = [
+  { src: "/assets/img/about/IMUVERA LOGO.jpeg", alt: "Imuvera", width: 118, height: 145 },
+  { src: "/assets/img/about/SALAMA LOGO.PNG", alt: "Salama", width: 277, height: 133 },
 ];
 
 const faqs: FaqItem[] = [
@@ -136,24 +138,31 @@ export default function AboutPage() {
       {/* About */}
       <section className="py-20">
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2">
-          <div className="order-2 lg:order-1">
-            <img
+          {/* Portrait source, framed to a consistent 4:5 crop so the column
+              heights stay balanced on desktop. */}
+          <CurtainReveal
+            className="relative order-2 aspect-[4/5] overflow-hidden rounded-3xl shadow-[0_18px_55px_rgba(11,38,74,0.12)] lg:order-1"
+            from="left"
+          >
+            <Image
               src="/assets/img/about/_S7A1754.jpg"
               alt="ZHAVILAH Business Group"
-              className="w-full rounded-3xl object-cover shadow-[0_18px_55px_rgba(8,63,52,0.12)]"
+              fill
+              sizes="(max-width: 1024px) 92vw, 620px"
+              className="object-cover"
             />
-          </div>
+          </CurtainReveal>
           <div className="order-1 lg:order-2">
             <SectionHeading eyebrow="About ZHAVILAH" title="One Stop Solution of Choice to Every Business" />
             <div className="mt-6 space-y-5">
               <div>
-                <h3 className="font-heading text-lg font-semibold text-brand-ink">Vision</h3>
+                <h3 className="font-heading text-lg font-extrabold text-brand-ink">Vision</h3>
                 <p className="mt-1 leading-relaxed text-brand-muted">
                   To be a one-stop solution of choice for every business.
                 </p>
               </div>
               <div>
-                <h3 className="font-heading text-lg font-semibold text-brand-ink">Mission</h3>
+                <h3 className="font-heading text-lg font-extrabold text-brand-ink">Mission</h3>
                 <p className="mt-1 leading-relaxed text-brand-muted">
                   Our mission is to empower businesses through a one-stop center for expert consulting —
                   fostering innovation and driving positive transformation across all aspects of their
@@ -162,11 +171,11 @@ export default function AboutPage() {
                 </p>
               </div>
               <div>
-                <h3 className="font-heading text-lg font-semibold text-brand-ink">Core Values</h3>
+                <h3 className="font-heading text-lg font-extrabold text-brand-ink">Core Values</h3>
                 <div className="mt-3 space-y-4">
                   {values.map((v) => (
                     <div key={v.title}>
-                      <h4 className="font-semibold text-brand-ink">{v.title}</h4>
+                      <h4 className="font-heading font-extrabold text-brand-ink">{v.title}</h4>
                       <p className="mt-1 leading-relaxed text-brand-muted">{v.text}</p>
                     </div>
                   ))}
@@ -202,36 +211,54 @@ export default function AboutPage() {
             </Link>
           </div>
           <div className="relative">
-            <img
-              src="/assets/img/about/4.jpeg"
-              alt="ZHAVILAH team at work"
-              className="w-full rounded-3xl object-cover shadow-[0_18px_55px_rgba(8,63,52,0.12)]"
-            />
-            <div className="absolute -bottom-6 left-6 flex items-center gap-4 rounded-2xl bg-brand-lime p-5 shadow-lg">
+            <CurtainReveal className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-[0_18px_55px_rgba(11,38,74,0.12)]">
+              <Image
+                src="/assets/img/about/4.jpeg"
+                alt="ZHAVILAH team at work"
+                fill
+                sizes="(max-width: 1024px) 92vw, 620px"
+                className="object-cover"
+              />
+            </CurtainReveal>
+            <Reveal
+              delay={0.45}
+              className="absolute -bottom-6 left-6 flex items-center gap-4 rounded-2xl bg-brand-sky p-5 shadow-lg"
+            >
               <TrendingUp className="size-8 text-brand" />
               <div>
-                <div className="font-heading text-3xl font-bold text-brand-ink">8+</div>
+                <div className="font-heading text-3xl font-extrabold text-brand-ink">8+</div>
                 <span className="text-sm font-medium text-brand-ink">Service Categories</span>
               </div>
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
       {/* Brands */}
       <section className="py-16">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-12 px-6">
+        <Stagger className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-12 px-6" step={0.12}>
           {brands.map((b) => (
-            <img key={b.alt} src={b.src} alt={b.alt} className="h-16 w-auto object-contain" />
+            <StaggerItem key={b.alt} lift>
+              <Image
+                src={b.src}
+                alt={b.alt}
+                width={b.width}
+                height={b.height}
+                className="h-16 w-auto object-contain grayscale transition duration-500 hover:grayscale-0"
+              />
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </section>
 
       {/* Training CTA + FAQ */}
       <section className="py-20">
         <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2">
-          <div className="flex flex-col justify-center rounded-3xl bg-brand p-10 text-white">
-            <h2 className="font-heading text-3xl font-bold sm:text-4xl">Visit Our Training Center</h2>
+          <Reveal
+            direction="right"
+            className="flex flex-col justify-center rounded-3xl bg-gradient-to-br from-brand to-brand-dark p-10 text-white"
+          >
+            <h2 className="font-heading text-3xl font-extrabold sm:text-4xl">Visit Our Training Center</h2>
             <p className="mt-5 leading-relaxed text-white/80">
               Learn from industry experts with years of real-world experience. We offer practical training for
               both beginners and seasoned professionals in Rwandan Taxation, Applied Business Accounting, and
@@ -239,11 +266,11 @@ export default function AboutPage() {
             </p>
             <Link
               href="/training"
-              className="mt-8 inline-flex w-fit items-center gap-2 rounded-full bg-brand-lime px-7 py-4 text-sm font-semibold text-brand-dark transition hover:bg-white"
+              className="mt-8 inline-flex w-fit items-center gap-2 rounded-full bg-brand-sky px-7 py-4 text-sm font-semibold text-brand-dark transition hover:bg-white"
             >
               Training Center <Plus className="size-4" />
             </Link>
-          </div>
+          </Reveal>
           <div>
             <SectionHeading eyebrow="FAQ Questions" title="Common Questions About Our Services" />
             <div className="mt-8">

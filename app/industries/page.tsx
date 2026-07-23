@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { Award, Plus, ShieldCheck, Wrench } from "lucide-react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
+import { Reveal, Stagger, StaggerItem } from "@/components/motion/primitives";
 
 export const metadata: Metadata = {
   title: "Industries We Serve │ ZHAVILAH BUSINESS GROUP Ltd",
@@ -83,50 +85,55 @@ export default function IndustriesPage() {
 
       <section className="bg-brand-haze py-20">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <Stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4" step={0.07}>
             {industries.map((item) => (
-              <article
+              <StaggerItem
+                as="article"
                 key={item.title}
+                lift
                 className="group relative isolate flex min-h-[355px] flex-col justify-end overflow-hidden rounded-2xl p-7"
               >
-                <img
+                <Image
                   src={item.image}
                   alt=""
-                  className="absolute inset-0 -z-10 size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"
+                  className="-z-10 object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <span className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-dark/10 to-brand-dark/95" />
                 <div className="relative">
-                  <h3 className="font-heading text-xl font-semibold text-white">{item.title}</h3>
+                  <h3 className="font-heading text-xl font-extrabold text-white">{item.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-white/80">{item.copy}</p>
                   <Link
                     href={item.href}
-                    className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-brand-lime"
+                    className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-brand-sky transition group-hover:gap-3"
                   >
                     Read More <Plus className="size-4" />
                   </Link>
                 </div>
-              </article>
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
 
           {/* Why choose us */}
-          <div className="mt-16 text-center">
-            <h2 className="font-heading text-3xl font-bold text-brand-ink sm:text-4xl">Why Choose Us?</h2>
-          </div>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
+          <Reveal className="mt-16 text-center" blur>
+            <h2 className="font-heading text-3xl font-extrabold text-brand-ink sm:text-4xl">Why Choose Us?</h2>
+          </Reveal>
+          <Stagger className="mt-10 grid gap-6 md:grid-cols-3" step={0.12}>
             {reasons.map(({ title, copy, icon: Icon }) => (
-              <div
+              <StaggerItem
                 key={title}
-                className="rounded-2xl border border-brand-line bg-white p-9 text-center transition hover:-translate-y-1.5 hover:shadow-[0_18px_42px_rgba(5,78,63,0.1)]"
+                lift
+                className="rounded-2xl border border-brand-line bg-white p-9 text-center transition-shadow hover:shadow-[0_18px_42px_rgba(16,58,107,0.1)]"
               >
                 <span className="mx-auto flex size-14 items-center justify-center rounded-full bg-brand-haze text-brand">
                   <Icon className="size-7" />
                 </span>
-                <h3 className="mt-5 font-heading text-lg font-semibold text-brand-ink">{title}</h3>
+                <h3 className="mt-5 font-heading text-lg font-extrabold text-brand-ink">{title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-brand-muted">{copy}</p>
-              </div>
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
         </div>
       </section>
     </main>

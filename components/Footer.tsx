@@ -1,7 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ChevronsRight, Mail, MapPin, Phone } from "lucide-react";
 import { CONTACT, QUICK_LINKS, SERVICES, SOCIALS } from "@/lib/site";
 import { SocialIcon } from "@/components/icons";
+import { Reveal, Stagger, StaggerItem } from "@/components/motion/primitives";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -10,8 +12,8 @@ export default function Footer() {
     <footer className="zbg-site-footer">
       {/* Subscribe band */}
       <div className="bg-primary">
-        <div className="mx-auto max-w-3xl px-6 py-16 text-center">
-          <h2 className="font-heading text-3xl font-semibold text-white sm:text-4xl">
+        <Reveal className="mx-auto max-w-3xl px-6 py-16 text-center" blur>
+          <h2 className="font-heading text-3xl font-extrabold text-white sm:text-4xl">
             Stay Connected! Subscribe For <span className="text-sky">The Latest Updates</span>
           </h2>
           <form
@@ -34,14 +36,20 @@ export default function Footer() {
               Subscribe now
             </button>
           </form>
-        </div>
+        </Reveal>
       </div>
 
       {/* Main footer */}
       <div className="bg-mint text-primary">
-        <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <img src="/assets/img/logo-2.png" alt="ZHAVILAH BUSINESS GROUP" className="h-11 w-auto" />
+        <Stagger className="mx-auto grid max-w-7xl gap-10 px-6 py-16 sm:grid-cols-2 lg:grid-cols-4">
+          <StaggerItem>
+            <Image
+              src="/assets/img/logo-2.png"
+              alt="ZHAVILAH BUSINESS GROUP"
+              width={500}
+              height={186}
+              className="h-11 w-auto"
+            />
             <p className="mt-5 font-semibold leading-relaxed">
               One Stop Solution of Choice to Every Business
             </p>
@@ -59,20 +67,20 @@ export default function Footer() {
                 </a>
               ))}
             </div>
-          </div>
+          </StaggerItem>
 
           <FooterColumn title="Our Services" links={SERVICES} />
           <FooterColumn title="Quick Link" links={QUICK_LINKS} />
 
-          <div>
-            <h5 className="mb-5 font-heading text-lg font-semibold">Contact</h5>
+          <StaggerItem>
+            <h5 className="mb-5 font-heading text-lg font-extrabold">Contact</h5>
             <ul className="space-y-4 text-sm">
               <ContactItem icon={<Phone className="size-5" />} label="Phone" value={CONTACT.phone} href={CONTACT.phoneHref} />
               <ContactItem icon={<Mail className="size-5" />} label="Email" value={CONTACT.email} href={CONTACT.emailHref} />
               <ContactItem icon={<MapPin className="size-5" />} label="Address" value={CONTACT.address} href={CONTACT.mapHref} />
             </ul>
-          </div>
-        </div>
+          </StaggerItem>
+        </Stagger>
       </div>
 
       {/* Copyright */}
@@ -114,19 +122,22 @@ export default function Footer() {
 
 function FooterColumn({ title, links }: { title: string; links: { label: string; href: string }[] }) {
   return (
-    <div>
-      <h5 className="mb-5 font-heading text-lg font-semibold">{title}</h5>
+    <StaggerItem>
+      <h5 className="mb-5 font-heading text-lg font-extrabold">{title}</h5>
       <ul className="space-y-3 text-sm">
         {links.map((l) => (
           <li key={l.href}>
-            <Link href={l.href} className="flex items-center gap-2 transition hover:opacity-70">
-              <ChevronsRight className="size-4 shrink-0" />
+            <Link
+              href={l.href}
+              className="group flex items-center gap-2 transition hover:translate-x-1 hover:opacity-70"
+            >
+              <ChevronsRight className="size-4 shrink-0 transition group-hover:translate-x-0.5" />
               {l.label}
             </Link>
           </li>
         ))}
       </ul>
-    </div>
+    </StaggerItem>
   );
 }
 

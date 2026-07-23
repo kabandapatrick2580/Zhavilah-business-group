@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 const inputClass =
-  "w-full rounded-lg border border-brand-line bg-[#fbfdf9] px-4 py-3.5 text-brand-ink outline-none transition focus:border-brand";
+  "w-full rounded-lg border border-brand-line bg-[#f7faff] px-4 py-3.5 text-brand-ink outline-none transition focus:border-brand";
 
 export default function ContactPage() {
   return (
@@ -19,7 +19,7 @@ export default function ContactPage() {
       <section className="bg-brand-haze py-20">
         <div className="mx-auto grid max-w-7xl items-center gap-8 px-6 lg:grid-cols-[1.4fr_1fr]">
           {/* Form */}
-          <div className="rounded-3xl bg-white p-8 shadow-[0_18px_55px_rgba(8,63,52,0.07)] sm:p-12">
+          <div className="rounded-3xl bg-white p-8 shadow-[0_18px_55px_rgba(11,38,74,0.07)] sm:p-12">
             <SectionHeading eyebrow="Start a Conversation" title="Get in Touch Now" />
             <p className="mt-3 text-brand-muted">
               Need personalized advice? Our dedicated team is here to assist you. Reach out today for expert
@@ -100,11 +100,11 @@ function InfoCard({
 }) {
   return (
     <div className="flex gap-4 rounded-2xl border border-brand-line bg-white p-6">
-      <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-brand-lime text-brand">
+      <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-brand-sky text-brand">
         {icon}
       </span>
       <div>
-        <h3 className="font-heading text-lg font-semibold text-brand-ink">{title}</h3>
+        <h3 className="font-heading text-lg font-extrabold text-brand-ink">{title}</h3>
         <div className="mt-1 text-sm text-brand-muted">{children}</div>
       </div>
     </div>

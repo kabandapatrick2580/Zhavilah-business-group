@@ -14,10 +14,10 @@ export default function SuccessPage() {
 
       <section className="py-24">
         <div className="mx-auto max-w-2xl px-6 text-center">
-          <span className="mx-auto flex size-20 items-center justify-center rounded-full bg-brand-lime text-brand">
+          <span className="mx-auto flex size-20 items-center justify-center rounded-full bg-brand-sky text-brand">
             <CircleCheckBig className="size-10" />
           </span>
-          <h2 className="mt-8 font-heading text-3xl font-bold text-brand-ink sm:text-4xl">
+          <h2 className="mt-8 font-heading text-3xl font-extrabold text-brand-ink sm:text-4xl">
             Thank you for reaching out!
           </h2>
           <p className="mt-4 leading-relaxed text-brand-muted">

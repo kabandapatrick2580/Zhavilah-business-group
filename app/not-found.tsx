@@ -14,10 +14,10 @@ export default function NotFound() {
 
       <section className="py-24">
         <div className="mx-auto max-w-2xl px-6 text-center">
-          <h1 className="font-heading text-[7rem] font-bold leading-none tracking-tight text-brand sm:text-[9rem]">
-            4<span className="text-brand-lime">0</span>4
+          <h1 className="font-heading text-[7rem] font-extrabold leading-none tracking-tight text-brand sm:text-[9rem]">
+            4<span className="text-brand-sky">0</span>4
           </h1>
-          <h2 className="mt-4 font-heading text-3xl font-bold text-brand-ink sm:text-4xl">
+          <h2 className="mt-4 font-heading text-3xl font-extrabold text-brand-ink sm:text-4xl">
             Oops! Page not found.
           </h2>
           <p className="mt-4 leading-relaxed text-brand-muted">

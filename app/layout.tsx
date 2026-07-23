@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Outfit } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CookieConsent from "@/components/CookieConsent";
+import ScrollProgress from "@/components/motion/ScrollProgress";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -35,13 +37,29 @@ export const metadata: Metadata = {
   },
 };
 
+// Paints the mobile browser chrome in brand navy.
+export const viewport: Viewport = {
+  themeColor: "#103a6b",
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
+      <head>
+        {/* Framer Motion serialises its `initial` state into the server HTML,
+            which would leave the page invisible if scripts never run. Without
+            JavaScript, reset exactly those inline styles so all content stays
+            readable. */}
+        <noscript>
+          <style>{`[style*="opacity:0"]{opacity:1!important;filter:none!important;transform:none!important}[style*="clip-path"]{clip-path:none!important}`}</style>
+        </noscript>
+      </head>
       <body className="font-body text-body antialiased">
+        <ScrollProgress />
         <Header />
         {children}
         <Footer />
+        <CookieConsent />
       </body>
     </html>
   );
