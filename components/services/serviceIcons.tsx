@@ -1,0 +1,73 @@
+// Icon registry for the service pages.
+//
+// Service pages are Server Components (they export `metadata`), so they cannot
+// hand a React component down to the client. They pass a *name* instead and
+// this registry resolves it — the names are the only contract.
+
+import {
+  Anchor, Award, BadgeCheck, Banknote, BookOpen, Boxes, BriefcaseBusiness, Building2,
+  Calculator, ClipboardCheck, ClipboardList, Coins, Compass, Container, FileCheck2,
+  FileSpreadsheet, FileText, Forklift, GraduationCap, Globe2, Handshake, KeyRound,
+  Landmark, Laptop, Layers, LineChart, Lock, MapPin, Milestone, Network, Package,
+  PackageCheck, Percent, Plane, Presentation, Receipt, Repeat, Route, Scale, ScrollText,
+  Search, Send, Ship, ShieldCheck, Sparkles, Stamp, Tags, Target, TrendingUp, Truck,
+  UsersRound, Warehouse, Workflow,
+} from "lucide-react";
+
+export const SERVICE_ICONS = {
+  anchor: Anchor,
+  award: Award,
+  badge: BadgeCheck,
+  banknote: Banknote,
+  book: BookOpen,
+  boxes: Boxes,
+  briefcase: BriefcaseBusiness,
+  building: Building2,
+  calculator: Calculator,
+  "clipboard-check": ClipboardCheck,
+  clipboard: ClipboardList,
+  coins: Coins,
+  compass: Compass,
+  container: Container,
+  "file-check": FileCheck2,
+  "file-text": FileText,
+  forklift: Forklift,
+  globe: Globe2,
+  graduation: GraduationCap,
+  handshake: Handshake,
+  key: KeyRound,
+  landmark: Landmark,
+  laptop: Laptop,
+  layers: Layers,
+  "line-chart": LineChart,
+  lock: Lock,
+  "map-pin": MapPin,
+  milestone: Milestone,
+  network: Network,
+  package: Package,
+  "package-check": PackageCheck,
+  percent: Percent,
+  plane: Plane,
+  presentation: Presentation,
+  receipt: Receipt,
+  repeat: Repeat,
+  route: Route,
+  scale: Scale,
+  scroll: ScrollText,
+  search: Search,
+  send: Send,
+  shield: ShieldCheck,
+  ship: Ship,
+  sparkles: Sparkles,
+  spreadsheet: FileSpreadsheet,
+  stamp: Stamp,
+  tags: Tags,
+  target: Target,
+  trending: TrendingUp,
+  truck: Truck,
+  users: UsersRound,
+  warehouse: Warehouse,
+  workflow: Workflow,
+} as const;
+
+export type ServiceIconName = keyof typeof SERVICE_ICONS;
