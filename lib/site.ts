@@ -12,6 +12,7 @@ export type NavItem = NavLink & {
 
 export const SERVICES: NavLink[] = [
   { label: "Accounting Services", href: "/accounting-services" },
+  { label: "QuickBooks Solutions", href: "/quickbooks-solutions" },
   { label: "Auditing & Assurance", href: "/auditing-assurance" },
   { label: "Tax Advisory", href: "/tax-advisory" },
   { label: "Business Advisory", href: "/business-advisory" },

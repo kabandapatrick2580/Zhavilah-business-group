@@ -221,15 +221,28 @@ export function CurtainReveal({
   from?: "bottom" | "left";
 }) {
   const reduce = useReducedMotion();
+
+  // The curtain is a `polygon()`, not an `inset()`. Framer reads the start of
+  // the animation back from the element's *computed* clip-path, and the
+  // browser collapses redundant `inset()` sides — `inset(100% 0% 0% 0%)`
+  // computes to `inset(100% 0% 0%)`. That leaves fewer components than the
+  // target, so Framer cannot pair them up and drops the whole animation: the
+  // element stays at its clipped `initial` and never becomes visible.
+  // `polygon()` keeps every point on both sides, so the two shapes always
+  // match. Corner rounding is left to the `rounded-*` class on the frame.
   const hidden =
-    from === "left" ? "inset(0 100% 0 0 round 24px)" : "inset(100% 0 0 0 round 24px)";
+    from === "left"
+      ? "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)"
+      : "polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)";
 
   return (
     <motion.div
       className={className}
       initial={reduce ? { opacity: 0 } : { clipPath: hidden, scale: 1.04 }}
       whileInView={
-        reduce ? { opacity: 1 } : { clipPath: "inset(0% 0% 0% 0% round 24px)", scale: 1 }
+        reduce
+          ? { opacity: 1 }
+          : { clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)", scale: 1 }
       }
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: reduce ? 0.25 : 1, delay, ease: EASE }}

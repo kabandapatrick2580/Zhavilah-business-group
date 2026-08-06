@@ -16,13 +16,22 @@ import Image from "next/image";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import { CurtainReveal, EASE, Reveal } from "@/components/motion/primitives";
 import { SERVICE_ICONS, type ServiceIconName } from "@/components/services/serviceIcons";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 
 export type HistoryImage = {
   kind: "image";
-  src: string;
+  /**
+   * Omit while the photograph is still being sourced: the block then reserves
+   * exactly the same frame with a labelled placeholder, so the measured trace
+   * geometry is identical before and after the real asset lands.
+   */
+  src?: string;
+  /** Doubles as the caption chip, and as the shot brief on a placeholder. */
   alt: string;
   /** Shown in the caption chip over the photograph. */
   icon?: ServiceIconName;
+  /** Delivery spec shown on the placeholder only. */
+  spec?: string;
 };
 
 export type HistoryCard = {
@@ -239,6 +248,14 @@ function CardNode({
 
 function ImageBlock({ block, index }: { block: HistoryImage; index: number }) {
   const Icon = block.icon ? SERVICE_ICONS[block.icon] : null;
+
+  if (!block.src) {
+    return (
+      <CurtainReveal className="h-72 w-full" delay={index * 0.05}>
+        <ImagePlaceholder label={block.alt} spec={block.spec} icon={block.icon} />
+      </CurtainReveal>
+    );
+  }
 
   return (
     <CurtainReveal

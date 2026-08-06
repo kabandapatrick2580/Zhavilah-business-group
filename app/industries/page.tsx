@@ -9,12 +9,20 @@ export const metadata: Metadata = {
   title: "Industries We Serve │ ZHAVILAH BUSINESS GROUP Ltd",
 };
 
-const industries: { title: string; copy: string; href: string; image: string }[] = [
+// `image` is optional — a service whose photography has not been shot yet
+// falls back to the navy panel below rather than borrowing another service's
+// picture.
+const industries: { title: string; copy: string; href: string; image?: string }[] = [
   {
     title: "Accounting & Financial Services",
     copy: "We help businesses manage their financial health through bookkeeping, tax planning, and financial advisory services.",
     href: "/accounting-services",
     image: "/assets/img/service/service-1.jpg",
+  },
+  {
+    title: "QuickBooks Solutions",
+    copy: "Certified QuickBooks ProAdvisors delivering licensing, setup, data migration, training and ongoing support on QuickBooks Online and Desktop.",
+    href: "/quickbooks-solutions",
   },
   {
     title: "Tax Advisory & Compliance",
@@ -85,7 +93,7 @@ export default function IndustriesPage() {
 
       <section className="bg-brand-haze py-20">
         <div className="mx-auto max-w-7xl px-6">
-          <Stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4" step={0.07}>
+          <Stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" step={0.07}>
             {industries.map((item) => (
               <StaggerItem
                 as="article"
@@ -93,14 +101,20 @@ export default function IndustriesPage() {
                 lift
                 className="group relative isolate flex min-h-[355px] flex-col justify-end overflow-hidden rounded-2xl p-7"
               >
-                <Image
-                  src={item.image}
-                  alt=""
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"
-                  className="-z-10 object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <span className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-dark/10 to-brand-dark/95" />
+                {item.image ? (
+                  <>
+                    <Image
+                      src={item.image}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
+                      className="-z-10 object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <span className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-dark/10 to-brand-dark/95" />
+                  </>
+                ) : (
+                  <span className="absolute inset-0 -z-10 bg-[linear-gradient(118deg,#0a2447_0%,#103a6b_56%,#17518f_100%)]" />
+                )}
                 <div className="relative">
                   <h3 className="font-heading text-xl font-extrabold text-white">{item.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-white/80">{item.copy}</p>

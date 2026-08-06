@@ -226,7 +226,7 @@ export default function AboutPage() {
             >
               <TrendingUp className="size-8 text-brand" />
               <div>
-                <div className="font-heading text-3xl font-extrabold text-brand-ink">8+</div>
+                <div className="font-heading text-3xl font-extrabold text-brand-ink">9+</div>
                 <span className="text-sm font-medium text-brand-ink">Service Categories</span>
               </div>
             </Reveal>

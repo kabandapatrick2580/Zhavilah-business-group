@@ -96,6 +96,18 @@ html {
     #e4eefb;
 }
 
+/* A newly launched service leads the homepage grid as a full-width navy band.
+   It carries no photograph, so the panel itself does the work: a diagonal navy
+   wash lit from the top right by the light-blue accent. */
+.zbg-service-card--wide { grid-column: 1 / -1; min-height: 250px; background: linear-gradient(118deg, #0a2447 0%, #103a6b 56%, #17518f 100%); }
+.zbg-service-card--wide:after { background: radial-gradient(72% 130% at 87% 12%, rgba(124, 192, 245, 0.24) 0%, rgba(10, 36, 71, 0) 62%); }
+.zbg-service-card--wide h3 { font-size: 29px; }
+.zbg-service-card--wide p { max-width: 62ch; font-size: 14px; }
+/* The pill pairs with the card's icon in the top-left corner rather than
+   sitting above the heading, where the bottom-aligned copy would run into it. */
+.zbg-new-pill { position: absolute; z-index: 2; top: 33px; left: 81px; display: inline-flex; align-items: center; padding: 6px 13px; border-radius: 999px; background: rgba(124, 192, 245, 0.16); color: var(--z-sky); font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+@media (max-width: 580px) { .zbg-service-card--wide { min-height: 310px; } .zbg-service-card--wide h3 { font-size: 24px; } }
+
 /* Service pages: the card network sits on a faint circuit-board field. The
    dots are masked away at the edges so the grid never fights the content. */
 .zbg-signal-field { position: relative; }
@@ -110,6 +122,23 @@ html {
   /* Masked on the pseudo-element only, so the cards above stay untouched. */
   -webkit-mask-image: radial-gradient(ellipse 78% 68% at 50% 50%, #000 40%, transparent 100%);
   mask-image: radial-gradient(ellipse 78% 68% at 50% 50%, #000 40%, transparent 100%);
+}
+
+/* Reserved artwork slots (components/ui/ImagePlaceholder). A faint diagonal
+   hatch marks the frame as intentionally empty rather than as a failed image. */
+.zbg-placeholder {
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(16, 58, 107, 0.05) 0 10px,
+    transparent 10px 20px
+  );
+}
+.zbg-placeholder-dark {
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.06) 0 10px,
+    transparent 10px 20px
+  );
 }
 
 /* A single, consistent focus ring in brand navy for keyboard users. */

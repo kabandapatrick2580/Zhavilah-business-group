@@ -10,7 +10,19 @@ import {
 } from "lucide-react";
 import { Counter, EASE, Reveal, Stagger, StaggerItem } from "@/components/motion/primitives";
 
-const services = [
+// `featured` promotes a card to a full-width band across the top of the grid —
+// used for a newly launched service. `image` is optional: without one the card
+// falls back to its navy panel, which is how a service reads before its
+// photography has been shot.
+const services: {
+  title: string;
+  copy: string;
+  href: string;
+  icon: React.ElementType;
+  image?: string;
+  featured?: boolean;
+}[] = [
+  { title: "QuickBooks Solutions", copy: "Certified QuickBooks ProAdvisors — licensing, setup, data migration, training and ongoing support for QuickBooks Online and Desktop.", href: "/quickbooks-solutions", icon: BadgeCheck, featured: true },
   { title: "Accounting Services", copy: "Reliable, tailored accounting solutions to help you navigate financial complexities and grow with confidence.", href: "/accounting-services", icon: Calculator, image: "/assets/img/service/service-1.jpg" },
   { title: "Tax Advisory Services", copy: "Expert tax planning and compliance guidance that keeps your business prepared and efficient.", href: "/tax-advisory", icon: CircleDollarSign, image: "/assets/img/service/service-2.jpg" },
   { title: "Audit & Assurance", copy: "Clear, credible insight for sound and transparent financial operations.", href: "/auditing-assurance", icon: FileCheck2, image: "/assets/img/service/service-3.jpg" },
@@ -20,7 +32,7 @@ const services = [
 ];
 
 const stats: { value: number; suffix: string; label: string }[] = [
-  { value: 8, suffix: "+", label: "Service categories" },
+  { value: 9, suffix: "+", label: "Service categories" },
   { value: 1, suffix: "×", label: "One-stop business partner" },
   { value: 360, suffix: "°", label: "Business support approach" },
   { value: 100, suffix: "%", label: "Client-focused service" },
@@ -189,7 +201,7 @@ export default function HomePage() {
                 transition={{ duration: 5.2, delay: 0.6, repeat: Infinity, ease: "easeInOut" }}
                 className="flex items-center gap-[11px]"
               >
-                <strong>8+</strong>
+                <strong>9+</strong>
                 <span>
                   service
                   <br />
@@ -219,19 +231,27 @@ export default function HomePage() {
       <section className="zbg-service-area">
         <div className="zbg-shell">
           <Stagger className="zbg-service-grid">
-            {services.map(({ title, copy, href, icon: Icon, image }) => (
-              <StaggerItem as="article" className="zbg-service-card" key={title} lift>
+            {services.map(({ title, copy, href, icon: Icon, image, featured }) => (
+              <StaggerItem
+                as="article"
+                className={`zbg-service-card${featured ? " zbg-service-card--wide" : ""}`}
+                key={title}
+                lift
+              >
                 <div className="zbg-service-icon">
                   <Icon />
                 </div>
-                <Image
-                  src={image}
-                  alt=""
-                  fill
-                  sizes="(max-width: 580px) 100vw, (max-width: 900px) 50vw, 380px"
-                  className="object-cover"
-                />
+                {image && (
+                  <Image
+                    src={image}
+                    alt=""
+                    fill
+                    sizes="(max-width: 580px) 100vw, (max-width: 900px) 50vw, 380px"
+                    className="object-cover"
+                  />
+                )}
                 <div>
+                  {featured && <span className="zbg-new-pill">New service</span>}
                   <h3>{title}</h3>
                   <p>{copy}</p>
                   <Link href={href}>
