@@ -221,33 +221,33 @@ export function CurtainReveal({
   from?: "bottom" | "left";
 }) {
   const reduce = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.3 });
 
-  // The curtain is a `polygon()`, not an `inset()`. Framer reads the start of
-  // the animation back from the element's *computed* clip-path, and the
-  // browser collapses redundant `inset()` sides — `inset(100% 0% 0% 0%)`
-  // computes to `inset(100% 0% 0%)`. That leaves fewer components than the
-  // target, so Framer cannot pair them up and drops the whole animation: the
-  // element stays at its clipped `initial` and never becomes visible.
-  // `polygon()` keeps every point on both sides, so the two shapes always
-  // match. Corner rounding is left to the `rounded-*` class on the frame.
-  const hidden =
-    from === "left"
-      ? "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)"
-      : "polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)";
+  // The wipe is a CSS transition, not a Framer animation. Framer will not
+  // interpolate `clip-path` here — it animates the accompanying `scale` and
+  // leaves the clip pinned at its start value, so the element stays masked out
+  // and the photograph never appears. The browser interpolates clip-path
+  // natively without complaint, so Framer is used only to detect the element
+  // entering the viewport. Corner rounding stays with the frame's
+  // `rounded-*` class.
+  const hidden = from === "left" ? "inset(0 100% 0 0)" : "inset(100% 0 0 0)";
+  const eased = `cubic-bezier(${EASE.join(",")})`;
+
+  const style: React.CSSProperties = reduce
+    ? {
+        opacity: inView ? 1 : 0,
+        transition: `opacity 0.25s ${eased} ${delay}s`,
+      }
+    : {
+        clipPath: inView ? "inset(0 0 0 0)" : hidden,
+        transform: inView ? "scale(1)" : "scale(1.04)",
+        transition: `clip-path 1s ${eased} ${delay}s, transform 1s ${eased} ${delay}s`,
+      };
 
   return (
-    <motion.div
-      className={className}
-      initial={reduce ? { opacity: 0 } : { clipPath: hidden, scale: 1.04 }}
-      whileInView={
-        reduce
-          ? { opacity: 1 }
-          : { clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)", scale: 1 }
-      }
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: reduce ? 0.25 : 1, delay, ease: EASE }}
-    >
+    <div ref={ref} className={className} style={style}>
       {children}
-    </motion.div>
+    </div>
   );
 }

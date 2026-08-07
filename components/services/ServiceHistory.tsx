@@ -32,6 +32,12 @@ export type HistoryImage = {
   icon?: ServiceIconName;
   /** Delivery spec shown on the placeholder only. */
   spec?: string;
+  /**
+   * `cover` (the default) crops a photograph to fill the frame. `contain`
+   * seats a product render whole on a tinted panel — cropping a screenshot of
+   * a device would cut the device in half.
+   */
+  fit?: "cover" | "contain";
 };
 
 export type HistoryCard = {
@@ -253,6 +259,26 @@ function ImageBlock({ block, index }: { block: HistoryImage; index: number }) {
     return (
       <CurtainReveal className="h-72 w-full" delay={index * 0.05}>
         <ImagePlaceholder label={block.alt} spec={block.spec} icon={block.icon} />
+      </CurtainReveal>
+    );
+  }
+
+  // Product renders sit whole on a pale panel, with no gradient or caption
+  // chip: those exist to lift white text off a photograph, and there is no
+  // photograph here to lift it off.
+  if (block.fit === "contain") {
+    return (
+      <CurtainReveal
+        className="relative h-72 w-full overflow-hidden rounded-2xl border border-brand-line bg-brand-tint"
+        delay={index * 0.05}
+      >
+        <Image
+          src={block.src}
+          alt={block.alt}
+          fill
+          sizes="(max-width: 1024px) 92vw, 590px"
+          className="object-contain p-5"
+        />
       </CurtainReveal>
     );
   }

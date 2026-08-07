@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
-  BadgeCheck,
   Boxes,
   FileSpreadsheet,
-  ImagePlus,
   LineChart,
   MessageCircle,
   Phone,
@@ -15,7 +14,6 @@ import {
   Workflow,
 } from "lucide-react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
-import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import SectionHeading from "@/components/ui/SectionHeading";
 import ServiceHistory, { type HistoryBlock } from "@/components/services/ServiceHistory";
 import { CurtainReveal, Reveal, Stagger, StaggerItem } from "@/components/motion/primitives";
@@ -54,15 +52,16 @@ const deliverables = [
   "System Optimization as Your Business Grows",
 ];
 
-// Photography for this page has not been supplied yet, so the image blocks
-// below carry no `src`: each reserves its frame with a shot brief and a
-// delivery spec. Adding the real asset is a one-line `src` change.
+// The one block still carrying no `src` is awaiting photography: it reserves
+// its frame with a shot brief and a delivery spec, so adding the real asset is
+// a one-line change.
 const leftColumn: HistoryBlock[] = [
   {
     kind: "image",
+    fit: "contain",
     icon: "laptop",
-    alt: "QuickBooks Online dashboard open on a laptop at a client's desk",
-    spec: "1180 × 580 · JPG",
+    src: "/assets/img/service/quickbooks-online-devices.png",
+    alt: "QuickBooks Online on a laptop and phone — the same books on every device",
   },
   {
     kind: "card",
@@ -72,9 +71,10 @@ const leftColumn: HistoryBlock[] = [
   },
   {
     kind: "image",
+    fit: "contain",
     icon: "workflow",
-    alt: "ProAdvisor configuring a company file with a client",
-    spec: "1180 × 580 · JPG",
+    src: "/assets/img/service/quickbooks-data-migration.webp",
+    alt: "Accounting data migration — records moving from a source system into a new company file, securely and intact",
   },
   {
     kind: "card",
@@ -106,9 +106,10 @@ const rightColumn: HistoryBlock[] = [
   },
   {
     kind: "image",
+    fit: "contain",
     icon: "line-chart",
-    alt: "Business owner reviewing QuickBooks reports on a tablet",
-    spec: "1180 × 580 · JPG",
+    src: "/assets/img/service/quickbooks-business-overview.png",
+    alt: "QuickBooks business overview — cash flow, expenses, profit and loss and bank accounts at a glance",
   },
   {
     kind: "card",
@@ -176,14 +177,20 @@ export default function QuickBooksSolutionsPage() {
             </Reveal>
           </div>
 
-          {/* Reserved hero artwork. The card below it is the ProAdvisor
-              certification lock-up, also awaiting its asset. */}
+          {/* The card below the photograph is the ProAdvisor certification
+              lock-up, still awaiting its badge asset. */}
           <div className="relative">
-            <CurtainReveal className="aspect-[4/5] w-full" from="left">
-              <ImagePlaceholder
-                icon="laptop"
-                label="QuickBooks Online in use — consultant and business owner reviewing the dashboard together"
-                spec="1000 × 1250 · JPG"
+            <CurtainReveal
+              className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl shadow-[0_18px_55px_rgba(11,38,74,0.12)]"
+              from="left"
+            >
+              <Image
+                src="/assets/img/service/quickbooks-hero.jpg"
+                alt="Two colleagues reviewing an accounting dashboard on a laptop"
+                fill
+                priority
+                sizes="(max-width: 1024px) 92vw, 590px"
+                className="object-cover"
               />
             </CurtainReveal>
 
@@ -191,15 +198,19 @@ export default function QuickBooksSolutionsPage() {
               delay={0.45}
               className="absolute -bottom-6 left-6 right-6 flex items-center gap-4 rounded-2xl bg-white p-5 shadow-[0_18px_55px_rgba(11,38,74,0.14)] sm:right-auto"
             >
-              <span className="zbg-placeholder flex size-14 shrink-0 items-center justify-center rounded-xl border-2 border-dashed border-brand/25 text-brand">
-                <ImagePlus className="size-5" />
-              </span>
+              <Image
+                src="/assets/img/service/quickbooks-proadvisor.png"
+                alt="Intuit QuickBooks Certified ProAdvisor — Online"
+                width={480}
+                height={638}
+                className="h-16 w-auto shrink-0"
+              />
               <div>
-                <div className="flex items-center gap-2 font-heading text-base font-extrabold text-brand-ink">
-                  <BadgeCheck className="size-4 text-brand" /> Certified QuickBooks ProAdvisors
+                <div className="font-heading text-base font-extrabold text-brand-ink">
+                  Certified QuickBooks ProAdvisors
                 </div>
-                <span className="mt-1 block font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-muted/70">
-                  ProAdvisor badge · 400 × 400 · PNG
+                <span className="mt-1 block text-sm text-brand-muted">
+                  QuickBooks Online &amp; Desktop
                 </span>
               </div>
             </Reveal>
@@ -242,37 +253,55 @@ export default function QuickBooksSolutionsPage() {
       {/* What our ProAdvisors provide */}
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="grid gap-10 lg:grid-cols-2 lg:items-end">
-            <SectionHeading
-              eyebrow="Complete Business Solution"
-              title="More Than Software — A Complete Business Solution"
-            />
-            <Reveal delay={0.12}>
-              <p className="leading-relaxed text-brand-muted">
-                We don&apos;t just sell QuickBooks — we become your trusted accounting technology partner. Our
-                Certified QuickBooks ProAdvisors provide:
-              </p>
-            </Reveal>
-          </div>
+          {/* The photograph carries the "partner, not vendor" half of this
+              section, so it sits beside the deliverables rather than above
+              them — which also gives a portrait crop somewhere to live. */}
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            <CurtainReveal
+              className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl shadow-[0_18px_55px_rgba(11,38,74,0.12)]"
+              from="left"
+            >
+              <Image
+                src="/assets/img/service/quickbooks-team-support.webp"
+                alt="A ProAdvisor working through a client's books alongside their finance officer"
+                fill
+                sizes="(max-width: 1024px) 92vw, 590px"
+                className="object-cover"
+              />
+            </CurtainReveal>
 
-          <Stagger className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" step={0.06}>
-            {deliverables.map((item, i) => (
-              <StaggerItem
-                as="article"
-                key={item}
-                lift
-                className="group relative overflow-hidden rounded-2xl border border-brand-line bg-white p-7 transition-colors hover:border-brand/40"
-              >
-                <span className="font-mono text-xs font-semibold tracking-[0.18em] text-brand-muted/60">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <h3 className="mt-3 font-heading text-base font-extrabold leading-snug text-brand-ink">
-                  {item}
-                </h3>
-                <span className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-brand-sky transition-transform duration-300 group-hover:scale-x-100" />
-              </StaggerItem>
-            ))}
-          </Stagger>
+            <div>
+              <SectionHeading
+                eyebrow="Complete Business Solution"
+                title="More Than Software — A Complete Business Solution"
+              />
+              <Reveal delay={0.12}>
+                <p className="mt-6 leading-relaxed text-brand-muted">
+                  We don&apos;t just sell QuickBooks — we become your trusted accounting technology partner.
+                  Our Certified QuickBooks ProAdvisors provide:
+                </p>
+              </Reveal>
+
+              <Stagger className="mt-8 grid gap-4 sm:grid-cols-2" step={0.06}>
+                {deliverables.map((item, i) => (
+                  <StaggerItem
+                    as="article"
+                    key={item}
+                    lift
+                    className="group relative overflow-hidden rounded-2xl border border-brand-line bg-white p-5 transition-colors hover:border-brand/40"
+                  >
+                    <span className="font-mono text-xs font-semibold tracking-[0.18em] text-brand-muted/60">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <h3 className="mt-2 font-heading text-[0.95rem] font-extrabold leading-snug text-brand-ink">
+                      {item}
+                    </h3>
+                    <span className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-brand-sky transition-transform duration-300 group-hover:scale-x-100" />
+                  </StaggerItem>
+                ))}
+              </Stagger>
+            </div>
+          </div>
 
           <Reveal delay={0.1}>
             <p className="mx-auto mt-12 max-w-3xl text-center leading-relaxed text-brand-muted">
@@ -289,6 +318,13 @@ export default function QuickBooksSolutionsPage() {
       <section className="py-20">
         <Reveal className="mx-auto max-w-7xl px-6">
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand to-brand-dark px-8 py-14 text-center text-white sm:px-14">
+            <Image
+              src="/assets/img/service/quickbooks-proadvisor.png"
+              alt="Intuit QuickBooks Certified ProAdvisor — Online"
+              width={480}
+              height={638}
+              className="mx-auto mb-8 h-20 w-auto drop-shadow-[0_10px_30px_rgba(4,20,43,0.45)]"
+            />
             <h2 className="mx-auto max-w-2xl font-heading text-3xl font-extrabold leading-tight sm:text-4xl">
               Ready to take control of your finances?
             </h2>
