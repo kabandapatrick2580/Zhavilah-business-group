@@ -245,9 +245,18 @@ export function CurtainReveal({
         transition: `clip-path 1s ${eased} ${delay}s, transform 1s ${eased} ${delay}s`,
       };
 
+  // The clip goes on an inner element, never on the observed one. Chrome
+  // intersects a target *after* its own `clip-path`, so an element masked to
+  // `inset(0 100% 0 0)` reports `intersectionRatio: 0` however far down the
+  // viewport it sits — it would wait forever to be seen, and stay clipped
+  // because it never was. Observing the unclipped frame breaks that circle.
+  // The frame keeps the caller's `relative`/sizing classes, so `<Image fill>`
+  // children still resolve against a full-size positioned box.
   return (
-    <div ref={ref} className={className} style={style}>
-      {children}
+    <div ref={ref} className={className}>
+      <div style={{ position: "relative", width: "100%", height: "100%", ...style }}>
+        {children}
+      </div>
     </div>
   );
 }
