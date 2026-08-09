@@ -11,15 +11,14 @@ export type NavItem = NavLink & {
 };
 
 export const SERVICES: NavLink[] = [
-  { label: "Accounting Services", href: "/accounting-services" },
-  { label: "QuickBooks Solutions", href: "/quickbooks-solutions" },
-  { label: "Auditing & Assurance", href: "/auditing-assurance" },
-  { label: "Tax Advisory", href: "/tax-advisory" },
+  { label: "Accounting Service", href: "/accounting-services" },
+  { label: "Tax Advisory Service", href: "/tax-advisory" },
   { label: "Business Advisory", href: "/business-advisory" },
-  { label: "Customs Clearing & Forwarding", href: "/customs-clearing-forwarding" },
-  { label: "Warehousing Services", href: "/warehousing-services" },
+  { label: "Sales of QuickBooks Online & Desktop", href: "/quickbooks-solutions" },
+  { label: "Training Service", href: "/training" },
   { label: "Transport & Logistics", href: "/transport-logistics" },
-  { label: "Training Services", href: "/training" },
+  { label: "Warehousing Service", href: "/warehousing-services" },
+  { label: "Customs Clearing & Forwarding", href: "/customs-clearing-forwarding" },
 ];
 
 export const NAV: NavItem[] = [
