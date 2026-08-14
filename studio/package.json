@@ -1,0 +1,23 @@
+{
+  "name": "zhavilah-studio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sanity Studio for ZHAVILAH BUSINESS GROUP Ltd. Deploys to *.sanity.studio, separately from the website.",
+  "scripts": {
+    "dev": "sanity dev",
+    "build": "sanity build",
+    "deploy": "sanity deploy",
+    "export": "sanity dataset export production"
+  },
+  "dependencies": {
+    "@sanity/vision": "^6.9.2",
+    "react": "^19.2.2",
+    "react-dom": "^19.2.2",
+    "sanity": "^6.9.2",
+    "styled-components": "^6.1.19"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "typescript": "^5.9.3"
+  }
+}

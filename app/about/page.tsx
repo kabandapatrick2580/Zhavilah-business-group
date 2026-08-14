@@ -9,7 +9,7 @@ import Faq, { type FaqItem } from "@/components/ui/Faq";
 import TeamGrid, { type TeamMember } from "@/components/about/TeamGrid";
 
 export const metadata: Metadata = {
-  title: "About Us │ ZHAVILAH BUSINESS GROUP Ltd",
+  title: "About Us",
 };
 
 const values: { title: string; text: string }[] = [

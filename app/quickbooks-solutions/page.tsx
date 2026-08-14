@@ -20,7 +20,7 @@ import { CurtainReveal, Reveal, Stagger, StaggerItem } from "@/components/motion
 import { CONTACT } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "QuickBooks Solutions │ ZHAVILAH BUSINESS GROUP Ltd",
+  title: "QuickBooks Solutions",
   description:
     "Certified QuickBooks ProAdvisors delivering QuickBooks Online and Desktop licensing, setup, data migration, training and ongoing support for startups, SMEs, NGOs and large enterprises.",
 };

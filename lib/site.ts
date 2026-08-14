@@ -27,6 +27,7 @@ export const NAV: NavItem[] = [
   { label: "Services", href: "#", children: SERVICES },
   { label: "Gallery", href: "/gallery" },
   { label: "Industries", href: "/industries" },
+  { label: "Blog", href: "/blog" },
   { label: "Contact Us", href: "/contact" },
 ];
 
@@ -34,6 +35,7 @@ export const QUICK_LINKS: NavLink[] = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Industries", href: "/industries" },
+  { label: "Blog", href: "/blog" },
   { label: "Contact Us", href: "/contact" },
 ];
 

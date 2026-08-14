@@ -4,7 +4,7 @@ import { ArrowRight, CircleCheckBig } from "lucide-react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export const metadata: Metadata = {
-  title: "Message Sent │ ZHAVILAH BUSINESS GROUP Ltd",
+  title: "Message Sent",
 };
 
 export default function SuccessPage() {

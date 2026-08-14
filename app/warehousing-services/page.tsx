@@ -3,7 +3,7 @@ import Breadcrumb from "@/components/ui/Breadcrumb";
 import ServiceHistory, { type HistoryBlock } from "@/components/services/ServiceHistory";
 
 export const metadata: Metadata = {
-  title: "Warehousing Services │ ZHAVILAH BUSINESS GROUP Ltd",
+  title: "Warehousing Services",
 };
 
 const leftColumn: HistoryBlock[] = [

@@ -16,7 +16,8 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://zhavilahbusinessgroup.com"),
   title: {
     default: "ZHAVILAH BUSINESS GROUP Ltd - One Stop Business Solution",
-    template: "%s",
+    // Pages set only their own name; the company suffix is appended here.
+    template: "%s │ ZHAVILAH BUSINESS GROUP Ltd",
   },
   description: SITE_DESCRIPTION,
   keywords:

@@ -51,10 +51,63 @@ const testimonials = [
   ["Alex", "Their practical guidance helped us make confident decisions for the next stage of our business."],
 ];
 
+/**
+ * The homepage hero, supplied by the CMS. Every field is optional at the call
+ * site: without a `banner` document the component falls back to DEFAULT_HERO
+ * below, which reproduces the original hand-written hero exactly. That keeps
+ * the live site intact until an editor publishes a banner.
+ */
+export type HeroContent = {
+  eyebrow: string;
+  heading: string;
+  subheading: string;
+  imageUrl: string;
+  imageAlt: string;
+  ctaLabel: string;
+  ctaHref: string;
+};
+
+const DEFAULT_HERO: HeroContent = {
+  eyebrow: "One stop business solutions",
+  heading: "Build a stronger business with *trusted expertise.*",
+  subheading:
+    "Zhavilah Business Group Ltd is a Rwanda-registered global consulting firm providing the expert support businesses need to grow sustainably.",
+  imageUrl: "/assets/img/about/_S7A1750.jpg",
+  imageAlt: "Zhavilah Business Group consultants",
+  ctaLabel: "Explore our services",
+  ctaHref: "/industries",
+};
+
+type HeadlineToken = { text: string; highlight: boolean };
+
+/**
+ * Splits a headline into the units that animate independently.
+ *
+ * Plain text breaks into single words; a phrase wrapped in *asterisks* stays
+ * whole so it rises as one blue block, which is how the original headline
+ * treated "trusted expertise."
+ */
+function parseHeadline(raw: string): HeadlineToken[] {
+  const tokens: HeadlineToken[] = [];
+
+  for (const part of raw.split(/(\*[^*]+\*)/g)) {
+    if (!part) continue;
+    if (part.length > 2 && part.startsWith("*") && part.endsWith("*")) {
+      tokens.push({ text: part.slice(1, -1), highlight: true });
+    } else {
+      for (const word of part.split(/\s+/)) {
+        if (word) tokens.push({ text: word, highlight: false });
+      }
+    }
+  }
+
+  return tokens;
+}
+
 /** Headline words rise and sharpen one after another rather than as a block. */
-function AnimatedHeadline() {
+function AnimatedHeadline({ heading }: { heading: string }) {
   const reduce = useReducedMotion();
-  const words = ["Build", "a", "stronger", "business", "with"];
+  const tokens = parseHeadline(heading);
 
   const container = {
     hidden: {},
@@ -67,19 +120,27 @@ function AnimatedHeadline() {
 
   return (
     <motion.h1 variants={container} initial="hidden" animate="visible">
-      {words.map((w) => (
-        <motion.span key={w} variants={word} transition={{ duration: 0.7, ease: EASE }} className="inline-block">
-          {w}&nbsp;
-        </motion.span>
-      ))}
-      <motion.em variants={word} transition={{ duration: 0.7, ease: EASE }} className="inline-block">
-        trusted expertise.
-      </motion.em>
+      {tokens.map((token, i) => {
+        const Tag = token.highlight ? motion.em : motion.span;
+        return (
+          <Tag
+            // Words legitimately repeat in a headline, so the index is part of
+            // the key.
+            key={`${token.text}-${i}`}
+            variants={word}
+            transition={{ duration: 0.7, ease: EASE }}
+            className="inline-block"
+          >
+            {token.text}
+            {i < tokens.length - 1 && <>&nbsp;</>}
+          </Tag>
+        );
+      })}
     </motion.h1>
   );
 }
 
-export default function HomePage() {
+export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }) {
   const reduce = useReducedMotion();
   const [openFaq, setOpenFaq] = useState(0);
 
@@ -103,20 +164,17 @@ export default function HomePage() {
                 transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
                 style={{ transformOrigin: "left" }}
               />{" "}
-              One stop business solutions
+              {hero.eyebrow}
             </motion.span>
 
-            <AnimatedHeadline />
+            <AnimatedHeadline heading={hero.heading} />
 
-            <motion.p {...enter(0.55)}>
-              Zhavilah Business Group Ltd is a Rwanda-registered global consulting firm providing the expert
-              support businesses need to grow sustainably.
-            </motion.p>
+            <motion.p {...enter(0.55)}>{hero.subheading}</motion.p>
 
             <motion.div className="zbg-hero-actions" {...enter(0.68)}>
               <motion.div whileHover={reduce ? undefined : { y: -3 }} whileTap={{ scale: 0.97 }}>
-                <Link href="/industries" className="zbg-button">
-                  Explore our services <ArrowRight />
+                <Link href={hero.ctaHref} className="zbg-button">
+                  {hero.ctaLabel} <ArrowRight />
                 </Link>
               </motion.div>
               <a href="tel:+250788221231" className="zbg-call">
@@ -164,8 +222,8 @@ export default function HomePage() {
             ))}
 
             <Image
-              src="/assets/img/about/_S7A1750.jpg"
-              alt="Zhavilah Business Group consultants"
+              src={hero.imageUrl}
+              alt={hero.imageAlt}
               fill
               priority
               sizes="(max-width: 900px) 85vw, 590px"

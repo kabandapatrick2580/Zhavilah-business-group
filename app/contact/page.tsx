@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
-import { ChevronRight, Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionHeading from "@/components/ui/SectionHeading";
+import ContactForm from "@/components/contact/ContactForm";
 import { CONTACT } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Contact Us │ ZHAVILAH BUSINESS GROUP Ltd",
+  title: "Contact Us",
 };
-
-const inputClass =
-  "w-full rounded-lg border border-brand-line bg-[#f7faff] px-4 py-3.5 text-brand-ink outline-none transition focus:border-brand";
 
 export default function ContactPage() {
   return (
@@ -26,31 +24,7 @@ export default function ContactPage() {
               support and tailored solutions to meet your needs.
             </p>
 
-            <form
-              action="https://formspree.io/f/xwplbgjj"
-              method="POST"
-              className="mt-8 space-y-4"
-            >
-              <div className="grid gap-4 sm:grid-cols-2">
-                <input type="text" name="name" placeholder="Your Name" required className={inputClass} />
-                <input type="email" name="email" placeholder="Your E-mail" required className={inputClass} />
-                <input type="tel" name="phone" placeholder="Phone Number" required className={inputClass} />
-                <input type="text" name="subject" placeholder="Subject" required className={inputClass} />
-              </div>
-              <textarea
-                name="message"
-                placeholder="Your Message"
-                required
-                className={`${inputClass} h-40 resize-none`}
-              />
-              <input type="hidden" name="_subject" value="New Contact Form Submission" />
-              <button
-                type="submit"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand px-7 py-4 text-sm font-semibold text-white transition hover:bg-brand-dark"
-              >
-                Submit Now <ChevronRight className="size-4" />
-              </button>
-            </form>
+            <ContactForm />
           </div>
 
           {/* Info cards */}

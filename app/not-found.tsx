@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export const metadata: Metadata = {
-  title: "Page Not Found │ ZHAVILAH BUSINESS GROUP Ltd",
+  title: "Page Not Found",
 };
 
 export default function NotFound() {

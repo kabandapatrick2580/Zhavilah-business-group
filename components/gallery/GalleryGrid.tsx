@@ -6,7 +6,12 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Plus, X } from "lucide-react";
 import { EASE, Stagger, StaggerItem } from "@/components/motion/primitives";
 
-export type GalleryImage = { src: string; alt: string };
+/**
+ * `fullSrc` is the higher-resolution variant opened in the lightbox. Local
+ * files serve one image at both sizes and omit it; CMS images supply a larger
+ * rendition so the lightbox does not upscale the grid thumbnail.
+ */
+export type GalleryImage = { src: string; alt: string; fullSrc?: string };
 
 export default function GalleryGrid({ images }: { images: GalleryImage[] }) {
   const reduce = useReducedMotion();
@@ -88,7 +93,7 @@ export default function GalleryGrid({ images }: { images: GalleryImage[] }) {
               onClick={(e) => e.stopPropagation()}
             >
               <Image
-                src={images[active].src}
+                src={images[active].fullSrc ?? images[active].src}
                 alt={images[active].alt}
                 fill
                 sizes="90vw"

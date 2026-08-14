@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ChevronsRight, Mail, MapPin, Phone } from "lucide-react";
 import { CONTACT, QUICK_LINKS, SERVICES, SOCIALS } from "@/lib/site";
 import { SocialIcon } from "@/components/icons";
+import SubscribeForm from "@/components/SubscribeForm";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/primitives";
 
 export default function Footer() {
@@ -16,26 +17,7 @@ export default function Footer() {
           <h2 className="font-heading text-3xl font-extrabold text-white sm:text-4xl">
             Stay Connected! Subscribe For <span className="text-sky">The Latest Updates</span>
           </h2>
-          <form
-            action="https://formspree.io/f/xwplbggj"
-            method="POST"
-            className="mx-auto mt-8 flex max-w-xl flex-col gap-3 sm:flex-row"
-          >
-            <input type="hidden" name="_subject" value="New Subscription Request" />
-            <input
-              type="email"
-              name="email"
-              required
-              placeholder="Enter Your Email"
-              className="w-full rounded-md border border-white/20 bg-white px-4 py-3 text-body outline-none focus:border-accent"
-            />
-            <button
-              type="submit"
-              className="shrink-0 rounded-md bg-accent px-6 py-3 font-semibold text-white transition hover:bg-white hover:text-primary"
-            >
-              Subscribe now
-            </button>
-          </form>
+          <SubscribeForm />
         </Reveal>
       </div>
 

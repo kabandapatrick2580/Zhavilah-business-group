@@ -4,7 +4,7 @@ import ServiceHistory, { type HistoryBlock } from "@/components/services/Service
 import { BookOpen, Check, Laptop, Percent } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Training Center │ ZHAVILAH BUSINESS GROUP Ltd",
+  title: "Training Center",
 };
 
 const modules: { title: string; icon: React.ElementType; items: string[] }[] = [

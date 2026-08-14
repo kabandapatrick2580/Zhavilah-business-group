@@ -6,7 +6,7 @@ import Breadcrumb from "@/components/ui/Breadcrumb";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/primitives";
 
 export const metadata: Metadata = {
-  title: "Industries We Serve │ ZHAVILAH BUSINESS GROUP Ltd",
+  title: "Industries We Serve",
 };
 
 // `image` is optional — a service whose photography has not been shot yet

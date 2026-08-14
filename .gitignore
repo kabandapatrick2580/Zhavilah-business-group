@@ -12,3 +12,9 @@ next-env.d.ts
 
 # TypeScript incremental build cache — regenerated on every build
 tsconfig.tsbuildinfo
+
+# Sanity Studio is its own npm project (see studio/README.md)
+/studio/node_modules
+/studio/dist
+/studio/.sanity
+.env
