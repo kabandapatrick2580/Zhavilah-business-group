@@ -39,6 +39,13 @@ export const QUICK_LINKS: NavLink[] = [
   { label: "Contact Us", href: "/contact" },
 ];
 
+// International format, digits only — the form wa.me and the WhatsApp apps expect.
+const WHATSAPP_NUMBER = "250788221231";
+
+// Pre-filled into the chat box so the visitor doesn't face an empty thread, and
+// so the team can tell a website lead from a personal message at a glance.
+export const WHATSAPP_MESSAGE = "Hello ZHAVILAH, I'd like to enquire about your services.";
+
 export const CONTACT = {
   phone: "+250 788 221 231",
   phoneHref: "tel:+250788221231",
@@ -47,7 +54,10 @@ export const CONTACT = {
   address:
     "Ikaze House, 3rd Floor, Room N° F3-22 Remera-Gisimenti KG 11 Av",
   mapHref: "https://www.google.com/maps",
-  whatsappHref: "https://web.whatsapp.com/send?phone=250788221231",
+  // wa.me, not web.whatsapp.com/send: the latter forces WhatsApp Web and fails
+  // on mobile, where most of this traffic is. wa.me hands off to the installed
+  // app and falls back to the web client on desktop.
+  whatsappHref: `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`,
 } as const;
 
 export type Social = {
