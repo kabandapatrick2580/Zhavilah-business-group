@@ -116,6 +116,28 @@ export function hasErrors(errors: FieldErrors): boolean {
 // than "honeypot" so naive form-fillers treat it as a real input.
 export const HONEYPOT_FIELD = "company_website";
 
+// How long a person plausibly takes before submitting. Scripts post the instant
+// they parse the page, so anything faster is almost certainly automated.
+//
+// The timestamp comes from the client and is therefore forgeable — this filters
+// naive bots, it does not stop a determined one. Turnstile is the layer that
+// does. The thresholds are per-form because the contact form has six fields and
+// the footer has one, and 3s of dwell time on a single email box would flag
+// people who paste and click.
+export const MIN_FILL_MS = { contact: 3000, subscribe: 1200 } as const;
+
+/**
+ * True when the submission arrived implausibly soon after the form was built.
+ * A missing or nonsensical timestamp counts as too fast: every real client sends
+ * one, so its absence means the request did not come from the rendered form.
+ */
+export function submittedTooFast(renderedAt: unknown, minMs: number): boolean {
+  if (typeof renderedAt !== "number" || !Number.isFinite(renderedAt)) return true;
+  const elapsed = Date.now() - renderedAt;
+  // A future timestamp means a forged or badly skewed clock; treat as suspect.
+  return elapsed < minMs;
+}
+
 export function isValidEmail(value: string): boolean {
   const email = value.trim();
   return Boolean(email) && EMAIL.test(email) && email.length <= LIMITS.email;

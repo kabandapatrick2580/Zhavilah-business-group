@@ -21,6 +21,7 @@ and the work is not yet committed.**
 | Phase 3 (SEO, security, backups, handover) | Not started |
 | Production site | Still serving the previous build |
 | Git | Changes uncommitted, on `main` |
+| Contact & subscribe forms | Rebuilt 2026-08-14; blocked on its own account setup — see `CONTACT-FORM.md` |
 
 ### The blocker
 
@@ -290,9 +291,12 @@ Closes the remaining non-CMS contract items.
 **§2.1 other:**
 - [ ] Fix the WhatsApp link in `lib/site.ts` — `web.whatsapp.com/send` fails on
       mobile; use `wa.me`.
-- [ ] Decide whether the contact form stays on Formspree (third-party free tier,
-      submission caps, Client-borne under §12) or moves to a Sanity-backed
-      inbox with Zoho SMTP notification.
+- [x] Decide whether the contact form stays on Formspree. **Resolved 2026-08-14:
+      moved off Formspree to Next.js route handlers sending through Resend.** The
+      two Formspree endpoints differed only by transposed characters, so at most
+      one was real — historic submissions may never have arrived. Both forms now
+      validate server-side and are fronted by Cloudflare Turnstile. Still blocked
+      on Resend and Turnstile account setup. See `CONTACT-FORM.md`.
 
 **§2.4 Deployment & Security** — partially complete:
 - [x] Production deployment (Vercel).
@@ -300,7 +304,11 @@ Closes the remaining non-CMS contract items.
 - [x] SSL certificate (valid; HSTS present via Vercel).
 - [ ] Security headers in `next.config.js` — CSP, X-Frame-Options,
       X-Content-Type-Options, Referrer-Policy, Permissions-Policy. **None are
-      currently set.**
+      currently set.** A CSP must allow `challenges.cloudflare.com` in both
+      `script-src` and `frame-src`, or Turnstile stops rendering silently.
+- [x] Form abuse protection (2026-08-14) — Turnstile, honeypot, timing check and
+      per-IP rate limiting on `/api/contact` and `/api/subscribe`. **Fails open
+      until `TURNSTILE_SECRET_KEY` is set**; see `CONTACT-FORM.md`.
 - [ ] Routine backup procedure: scheduled `sanity dataset export`, with a
       **tested** restore documented. Repo itself is backed by git.
 
@@ -328,7 +336,7 @@ Verified against the live site and DNS on 2026-08-12.
 | Services | Complete — 8 service pages |
 | Training | Complete |
 | **Blog** | **Built in Phase 1 — did not exist** |
-| Contact | Complete |
+| Contact | Page complete. Form rebuilt 2026-08-14 but **not yet delivering** — awaiting Resend setup (`CONTACT-FORM.md`) |
 
 Delivered beyond scope: Gallery, Industries, cookie consent, QuickBooks page.
 

@@ -76,4 +76,15 @@ untouched):
 - **Footer / 404**: `mialto:` typo → `mailto:`; footer phone `href="+250…"` was
   missing its `tel:` scheme → `href="tel:+250788221231"`.
 
-Forms still post to Formspree exactly as before.
+## Contact & subscribe forms
+
+**No longer on Formspree.** As of 2026-08-14 both forms post to Next.js route
+handlers (`/api/contact`, `/api/subscribe`) which validate server-side and send
+through Resend, fronted by Cloudflare Turnstile.
+
+Submissions currently fail with a 502 until the Resend account and domain
+verification exist, and bot verification is skipped until the Turnstile keys are
+set. Both are external setup steps, not code.
+
+See [`docs/CONTACT-FORM.md`](docs/CONTACT-FORM.md) for the decision record,
+architecture, the environment variables required, and what has been verified.

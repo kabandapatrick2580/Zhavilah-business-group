@@ -5,9 +5,10 @@
 // sendMail for an API call is the only change needed later.
 
 import { NextResponse } from "next/server";
-import { HONEYPOT_FIELD, isValidEmail } from "@/lib/contact";
+import { HONEYPOT_FIELD, MIN_FILL_MS, isValidEmail, submittedTooFast } from "@/lib/contact";
 import { escapeHtml, sendMail } from "@/lib/mail";
 import { clientKey, rateLimit } from "@/lib/rate-limit";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 const LIMIT = 5;
 const WINDOW_MS = 10 * 60 * 1000;
@@ -35,6 +36,22 @@ export async function POST(request: Request) {
   const email = typeof body.email === "string" ? body.email.trim() : "";
   if (!isValidEmail(email)) {
     return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
+  }
+
+  if (submittedTooFast(body.renderedAt, MIN_FILL_MS.subscribe)) {
+    return NextResponse.json(
+      { error: "That was a little too quick — please try again." },
+      { status: 400 },
+    );
+  }
+
+  const token = typeof body.turnstileToken === "string" ? body.turnstileToken : "";
+  const verification = await verifyTurnstile(token, clientKey(request));
+  if (!verification.ok && verification.reason !== "unreachable") {
+    return NextResponse.json(
+      { error: "We couldn't verify that you're human. Please try again." },
+      { status: 403 },
+    );
   }
 
   const result = await sendMail({

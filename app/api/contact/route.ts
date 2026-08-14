@@ -7,12 +7,15 @@
 import { NextResponse } from "next/server";
 import {
   HONEYPOT_FIELD,
+  MIN_FILL_MS,
   hasErrors,
+  submittedTooFast,
   validateContact,
   type ContactFields,
 } from "@/lib/contact";
 import { escapeHtml, sendMail } from "@/lib/mail";
 import { clientKey, rateLimit } from "@/lib/rate-limit";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 const LIMIT = 5;
 const WINDOW_MS = 10 * 60 * 1000;
@@ -57,6 +60,25 @@ export async function POST(request: Request) {
   const errors = validateContact(fields);
   if (hasErrors(errors)) {
     return NextResponse.json({ error: "Please check the highlighted fields.", errors }, { status: 400 });
+  }
+
+  // Answered with a retryable error rather than a silent 200: if a real person
+  // ever trips this, resubmitting a moment later succeeds, whereas pretending
+  // to accept would lose their message. Retrying costs a bot the delay it was
+  // trying to skip either way.
+  if (submittedTooFast(body.renderedAt, MIN_FILL_MS.contact)) {
+    return NextResponse.json(
+      { error: "That was a little too quick — please try sending again." },
+      { status: 400 },
+    );
+  }
+
+  const verification = await verifyTurnstile(field(body, "turnstileToken"), clientKey(request));
+  if (!verification.ok && verification.reason !== "unreachable") {
+    return NextResponse.json(
+      { error: "We couldn't verify that you're human. Please complete the check and try again." },
+      { status: 403 },
+    );
   }
 
   // Both dropdown values go in the subject line so the inbox can be triaged

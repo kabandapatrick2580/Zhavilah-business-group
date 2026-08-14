@@ -19,6 +19,7 @@ import {
   type ContactFields,
   type FieldErrors,
 } from "@/lib/contact";
+import Turnstile, { TURNSTILE_SITE_KEY } from "@/components/Turnstile";
 
 const inputClass =
   "w-full rounded-lg border bg-[#f7faff] px-4 py-3.5 text-brand-ink outline-none transition focus:border-brand disabled:opacity-60";
@@ -31,6 +32,13 @@ export default function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [formError, setFormError] = useState<string | null>(null);
   const errorRef = useRef<HTMLParagraphElement>(null);
+  const [token, setToken] = useState("");
+  const [resetSignal, setResetSignal] = useState(0);
+
+  // When the form was built, sent with the submission so the server can reject
+  // anything posted implausibly fast. A ref, not state — it must survive
+  // re-renders without causing one.
+  const renderedAt = useRef(Date.now());
 
   const update = (key: keyof ContactFields) => (value: string) => {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -50,18 +58,37 @@ export default function ContactForm() {
       return;
     }
 
+    // Only enforced when a site key exists, so an unconfigured deployment keeps
+    // working — the server fails open the same way.
+    if (TURNSTILE_SITE_KEY && !token) {
+      setFormError("Please complete the human verification check below, then submit again.");
+      errorRef.current?.focus();
+      return;
+    }
+
     setStatus("sending");
     try {
       const honeypot = new FormData(event.currentTarget).get(HONEYPOT_FIELD);
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...values, [HONEYPOT_FIELD]: honeypot ?? "" }),
+        body: JSON.stringify({
+          ...values,
+          [HONEYPOT_FIELD]: honeypot ?? "",
+          renderedAt: renderedAt.current,
+          turnstileToken: token,
+        }),
       });
       const data = (await response.json().catch(() => ({}))) as {
         error?: string;
         errors?: FieldErrors;
       };
+
+      // A token is consumed by verification whatever the outcome, so the widget
+      // is reset on every path. Skipping this on the error path would make the
+      // visitor's second attempt fail on an already-spent token.
+      setToken("");
+      setResetSignal((n) => n + 1);
 
       if (!response.ok) {
         if (data.errors) setErrors(data.errors);
@@ -74,6 +101,8 @@ export default function ContactForm() {
       setValues(EMPTY_CONTACT);
       setStatus("sent");
     } catch {
+      setToken("");
+      setResetSignal((n) => n + 1);
       setFormError(
         "We couldn't reach the server. Please check your connection and try again.",
       );
@@ -190,6 +219,8 @@ export default function ContactForm() {
           defaultValue=""
         />
       </div>
+
+      <Turnstile onToken={setToken} resetSignal={resetSignal} className="min-h-[65px]" />
 
       {formError ? (
         <p
