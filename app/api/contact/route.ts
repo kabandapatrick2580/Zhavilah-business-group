@@ -50,6 +50,7 @@ export async function POST(request: Request) {
     email: field(body, "email"),
     phone: field(body, "phone"),
     subject: field(body, "subject"),
+    service: field(body, "service"),
     message: field(body, "message"),
   };
 
@@ -58,14 +59,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Please check the highlighted fields.", errors }, { status: 400 });
   }
 
+  // Both dropdown values go in the subject line so the inbox can be triaged
+  // and filtered without opening anything.
   const result = await sendMail({
-    subject: `Website enquiry: ${fields.subject}`,
+    subject: `${fields.subject} — ${fields.service}`,
     replyTo: fields.email,
     text: [
       `Name:    ${fields.name}`,
       `Email:   ${fields.email}`,
       `Phone:   ${fields.phone}`,
-      `Subject: ${fields.subject}`,
+      `Enquiry: ${fields.subject}`,
+      `Service: ${fields.service}`,
       "",
       fields.message,
     ].join("\n"),
@@ -75,7 +79,8 @@ export async function POST(request: Request) {
         <tr><td style="padding:4px 12px 4px 0"><strong>Name</strong></td><td>${escapeHtml(fields.name)}</td></tr>
         <tr><td style="padding:4px 12px 4px 0"><strong>Email</strong></td><td>${escapeHtml(fields.email)}</td></tr>
         <tr><td style="padding:4px 12px 4px 0"><strong>Phone</strong></td><td>${escapeHtml(fields.phone)}</td></tr>
-        <tr><td style="padding:4px 12px 4px 0"><strong>Subject</strong></td><td>${escapeHtml(fields.subject)}</td></tr>
+        <tr><td style="padding:4px 12px 4px 0"><strong>Enquiry</strong></td><td>${escapeHtml(fields.subject)}</td></tr>
+        <tr><td style="padding:4px 12px 4px 0"><strong>Service</strong></td><td>${escapeHtml(fields.service)}</td></tr>
       </table>
       <p style="font-family:sans-serif;white-space:pre-wrap">${escapeHtml(fields.message)}</p>
     `,

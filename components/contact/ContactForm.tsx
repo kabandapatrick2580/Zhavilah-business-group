@@ -8,10 +8,12 @@
 // end. Validation runs here for speed and again on the server for trust.
 
 import { useRef, useState } from "react";
-import { ChevronRight, CircleCheckBig, Loader2, TriangleAlert } from "lucide-react";
+import { ChevronDown, ChevronRight, CircleCheckBig, Loader2, TriangleAlert } from "lucide-react";
 import {
   EMPTY_CONTACT,
   HONEYPOT_FIELD,
+  INQUIRY_TYPES,
+  SERVICE_OPTIONS,
   hasErrors,
   validateContact,
   type ContactFields,
@@ -137,15 +139,26 @@ export default function ContactForm() {
           disabled={busy}
           autoComplete="tel"
         />
-        <Field
+        <Select
           name="subject"
-          placeholder="Subject"
+          placeholder="What is your enquiry about?"
+          options={INQUIRY_TYPES as readonly string[]}
           value={values.subject}
           error={errors.subject}
           onChange={update("subject")}
           disabled={busy}
         />
       </div>
+
+      <Select
+        name="service"
+        placeholder="Which service are you interested in?"
+        options={SERVICE_OPTIONS}
+        value={values.service}
+        error={errors.service}
+        onChange={update("service")}
+        disabled={busy}
+      />
 
       <div>
         <textarea
@@ -249,6 +262,64 @@ function Field({
         aria-describedby={error ? errorId : undefined}
         className={`${inputClass} ${error ? "border-red-500" : "border-brand-line"}`}
       />
+      {error ? <FieldError id={errorId}>{error}</FieldError> : null}
+    </div>
+  );
+}
+
+// A native <select> rather than a custom listbox: it costs nothing, it is
+// keyboard- and screen-reader-correct by default, and on mobile it opens the
+// platform picker, which is easier to use than anything rebuilt in a div.
+// Only the chevron is custom, since the native one can't be styled.
+function Select({
+  name,
+  placeholder,
+  options,
+  value,
+  error,
+  onChange,
+  disabled,
+}: {
+  name: string;
+  placeholder: string;
+  options: readonly string[];
+  value: string;
+  error?: string;
+  onChange: (value: string) => void;
+  disabled: boolean;
+}) {
+  const errorId = `error-${name}`;
+  return (
+    <div>
+      <div className="relative">
+        <select
+          name={name}
+          value={value}
+          disabled={disabled}
+          onChange={(e) => onChange(e.target.value)}
+          aria-label={placeholder}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
+          className={`${inputClass} cursor-pointer appearance-none pr-11 ${
+            error ? "border-red-500" : "border-brand-line"
+          } ${value ? "" : "text-brand-muted"}`}
+        >
+          {/* Empty and disabled, so it reads as a prompt and can't be chosen
+              back once a real option is picked. */}
+          <option value="" disabled>
+            {placeholder}
+          </option>
+          {options.map((option) => (
+            <option key={option} value={option} className="text-brand-ink">
+              {option}
+            </option>
+          ))}
+        </select>
+        <ChevronDown
+          aria-hidden="true"
+          className="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-brand-muted"
+        />
+      </div>
       {error ? <FieldError id={errorId}>{error}</FieldError> : null}
     </div>
   );

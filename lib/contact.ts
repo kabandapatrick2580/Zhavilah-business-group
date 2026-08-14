@@ -5,11 +5,14 @@
 // POST can be crafted by hand and client-side checks are a courtesy, not a
 // control. Keeping one implementation means the two can't drift apart.
 
+import { SERVICES } from "@/lib/site";
+
 export type ContactFields = {
   name: string;
   email: string;
   phone: string;
   subject: string;
+  service: string;
   message: string;
 };
 
@@ -20,8 +23,35 @@ export const EMPTY_CONTACT: ContactFields = {
   email: "",
   phone: "",
   subject: "",
+  service: "",
   message: "",
 };
+
+// The kinds of enquiry the office actually receives, ordered by how commonly
+// they arrive so the likeliest options need no scrolling on mobile. "Something
+// else" is last and deliberately open — a fixed list that can't express the
+// visitor's reason is worse than no list at all, and the message body catches
+// whatever the options miss.
+export const INQUIRY_TYPES = [
+  "Request a quote",
+  "Book a consultation",
+  "General enquiry",
+  "Request a proposal or tender document",
+  "Existing client support",
+  "Training or workshop booking",
+  "Partnership or supplier enquiry",
+  "Careers and internships",
+  "Something else",
+] as const;
+
+// Derived from the navigation's service list rather than retyped, so a service
+// added to the site menu appears here automatically and the two can't disagree.
+// The trailing option exists because a visitor who already knew which service
+// they needed would often not be writing in.
+export const SERVICE_OPTIONS: string[] = [
+  ...SERVICES.map((service) => service.label),
+  "Not sure yet — please advise",
+];
 
 // Deliberately permissive. An address is only truly validated by sending mail
 // to it, so this rejects the obviously malformed and lets the rest through
@@ -37,7 +67,6 @@ const LIMITS = {
   name: 100,
   email: 200,
   phone: 20,
-  subject: 150,
   message: 5000,
 } as const;
 
@@ -47,6 +76,7 @@ export function validateContact(fields: ContactFields): FieldErrors {
   const email = fields.email.trim();
   const phone = fields.phone.trim();
   const subject = fields.subject.trim();
+  const service = fields.service.trim();
   const message = fields.message.trim();
 
   if (name.length < 2) errors.name = "Please enter your name.";
@@ -59,8 +89,17 @@ export function validateContact(fields: ContactFields): FieldErrors {
   if (!phone) errors.phone = "Please enter a phone number.";
   else if (!PHONE.test(phone)) errors.phone = "Please enter a valid phone number.";
 
-  if (subject.length < 2) errors.subject = "Please enter a subject.";
-  else if (subject.length > LIMITS.subject) errors.subject = "That subject is too long.";
+  // Both dropdowns are checked against their lists rather than for length. A
+  // value outside the list can't come from the rendered form, so it means the
+  // request was hand-crafted — and accepting it would let arbitrary text into
+  // the email subject line.
+  if (!subject) errors.subject = "Please choose what your enquiry is about.";
+  else if (!INQUIRY_TYPES.includes(subject as (typeof INQUIRY_TYPES)[number]))
+    errors.subject = "Please choose one of the listed options.";
+
+  if (!service) errors.service = "Please choose the service you're interested in.";
+  else if (!SERVICE_OPTIONS.includes(service))
+    errors.service = "Please choose one of the listed services.";
 
   if (message.length < 10) errors.message = "Please tell us a little more — at least 10 characters.";
   else if (message.length > LIMITS.message)
