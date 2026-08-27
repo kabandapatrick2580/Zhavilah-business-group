@@ -4,11 +4,18 @@
 // which is exactly what a route transition needs: each page enters with a
 // short lift-and-focus pass so navigation feels continuous instead of abrupt.
 
+import { usePathname } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import { EASE } from "@/components/motion/primitives";
 
 export default function Template({ children }: { children: React.ReactNode }) {
   const reduce = useReducedMotion();
+  const pathname = usePathname();
+
+  // The dashboard is a tool, not a marketing surface. Fading it in on every
+  // navigation between Modules and Intakes is half a second of semi-transparent
+  // UI in exchange for nothing, so /admin renders immediately.
+  if (pathname?.startsWith("/admin")) return <>{children}</>;
 
   return (
     <motion.div

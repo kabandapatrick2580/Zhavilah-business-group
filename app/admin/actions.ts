@@ -75,9 +75,14 @@ async function requireAdmin(): Promise<void> {
 
 const MAX_MODULE_ITEMS = 60;
 
-export async function createModuleAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireAdmin();
+/** The editable half of a module — everything except its id. */
+type ModuleFields = Omit<TrainingModule, "id">;
 
+/**
+ * Reads and validates a module form. Shared by create and update so the two
+ * cannot drift apart: an edit is held to exactly the rules a new module was.
+ */
+function readModuleFields(formData: FormData): { error: string } | { fields: ModuleFields } {
   const title = text(formData, "title");
   if (!title) return { error: "Give the module a title." };
   if (title.length > 160) return { error: "That title is too long — keep it under 160 characters." };
@@ -96,15 +101,41 @@ export async function createModuleAction(_prev: ActionState, formData: FormData)
   if (items.length === 0) return { error: "Add at least one topic, one per line." };
 
   const summary = text(formData, "summary");
-  const module: TrainingModule = {
-    id: makeId(title),
-    title,
-    icon,
-    ...(summary ? { summary } : {}),
-    items,
-  };
+  return { fields: { title, icon, ...(summary ? { summary } : {}), items } };
+}
 
-  return save((data) => ({ ...data, modules: [...data.modules, module] }), `"${title}" was added.`);
+export async function createModuleAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireAdmin();
+
+  const parsed = readModuleFields(formData);
+  if ("error" in parsed) return parsed;
+
+  const module: TrainingModule = { id: makeId(parsed.fields.title), ...parsed.fields };
+  return save((data) => ({ ...data, modules: [...data.modules, module] }), `"${module.title}" was added.`);
+}
+
+export async function updateModuleAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireAdmin();
+
+  const id = text(formData, "id");
+  const data = await readTraining();
+  if (!data.modules.some((module) => module.id === id)) {
+    return { error: "That module no longer exists — it may have been removed in another tab." };
+  }
+
+  const parsed = readModuleFields(formData);
+  if ("error" in parsed) return parsed;
+
+  // The id is deliberately not regenerated from the new title. It is the only
+  // stable handle the row has, and rewriting it would break an edit submitted
+  // from a second tab that is still holding the old one.
+  return save(
+    (current) => ({
+      ...current,
+      modules: current.modules.map((module) => (module.id === id ? { id, ...parsed.fields } : module)),
+    }),
+    `"${parsed.fields.title}" was updated.`,
+  );
 }
 
 export async function deleteModuleAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -143,9 +174,15 @@ export async function moveModuleAction(_prev: ActionState, formData: FormData): 
 // Intakes
 // ---------------------------------------------------------------------------
 
-export async function createIntakeAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireAdmin();
+/** The editable half of an intake — everything except its id and creation time. */
+type IntakeFields = Omit<TrainingIntake, "id" | "createdAt">;
 
+/**
+ * Reads and validates an intake form. Shared by create and update for the same
+ * reason as `readModuleFields`: the date ordering rules and the URL check must
+ * hold on an edit exactly as they did on creation.
+ */
+function readIntakeFields(formData: FormData): { error: string } | { fields: IntakeFields } {
   const title = text(formData, "title");
   if (!title) return { error: "Give the intake a title." };
 
@@ -173,23 +210,62 @@ export async function createIntakeAction(_prev: ActionState, formData: FormData)
     return { error: "Seats has to be a whole number, or left blank." };
   }
 
+  return {
+    fields: {
+      title,
+      summary: text(formData, "summary"),
+      opensAt,
+      ...(closesAt ? { closesAt } : {}),
+      ...(startsAt ? { startsAt } : {}),
+      ...optional(formData, "mode"),
+      ...optional(formData, "location"),
+      ...optional(formData, "fee"),
+      ...(seatsRaw ? { seats: Math.floor(seatsNumber) } : {}),
+      applicationUrl,
+      published: formData.get("published") !== null,
+    },
+  };
+}
+
+export async function createIntakeAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireAdmin();
+
+  const parsed = readIntakeFields(formData);
+  if ("error" in parsed) return parsed;
+
   const intake: TrainingIntake = {
-    id: makeId(title),
-    title,
-    summary: text(formData, "summary"),
-    opensAt,
-    ...(closesAt ? { closesAt } : {}),
-    ...(startsAt ? { startsAt } : {}),
-    ...optional(formData, "mode"),
-    ...optional(formData, "location"),
-    ...optional(formData, "fee"),
-    ...(seatsRaw ? { seats: Math.floor(seatsNumber) } : {}),
-    applicationUrl,
-    published: formData.get("published") !== null,
+    id: makeId(parsed.fields.title),
+    ...parsed.fields,
     createdAt: new Date().toISOString(),
   };
 
-  return save((data) => ({ ...data, intakes: [intake, ...data.intakes] }), `"${title}" was created.`);
+  return save((data) => ({ ...data, intakes: [intake, ...data.intakes] }), `"${intake.title}" was created.`);
+}
+
+export async function updateIntakeAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireAdmin();
+
+  const id = text(formData, "id");
+  const data = await readTraining();
+  const existing = data.intakes.find((intake) => intake.id === id);
+  if (!existing) {
+    return { error: "That intake no longer exists — it may have been removed in another tab." };
+  }
+
+  const parsed = readIntakeFields(formData);
+  if ("error" in parsed) return parsed;
+
+  // `createdAt` is carried over rather than refreshed: it records when the
+  // intake was first announced, which is not what an edit changes.
+  return save(
+    (current) => ({
+      ...current,
+      intakes: current.intakes.map((intake) =>
+        intake.id === id ? { id, ...parsed.fields, createdAt: existing.createdAt } : intake,
+      ),
+    }),
+    `"${parsed.fields.title}" was updated.`,
+  );
 }
 
 export async function deleteIntakeAction(_prev: ActionState, formData: FormData): Promise<ActionState> {

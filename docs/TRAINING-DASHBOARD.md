@@ -17,8 +17,8 @@ outstanding — see §6.
 | --- | --- |
 | Sign in with credentials from the environment | `/admin/login` |
 | See what is live, at a glance | `/admin` |
-| Add, remove and reorder syllabus modules | `/admin/modules` |
-| Create, publish, hide and remove intakes | `/admin/intakes` |
+| Add, **edit**, remove and reorder syllabus modules | `/admin/modules` |
+| Create, **edit**, publish, hide and remove intakes | `/admin/intakes` |
 | Announce the next intake with a live countdown and an application button | `/training` |
 
 The announcement panel has three states, and moves between them on its own
@@ -32,6 +32,26 @@ without a page reload:
   at the third-party form, `target="_blank" rel="noopener noreferrer"`.
 - **After the deadline** — the panel removes itself, and the intake stops being
   featured.
+
+Editing happens **inline**: the row swaps in place for a form prefilled with
+everything the record holds, and the rest of the list stays on screen. Most
+edits to a syllabus are made by comparing a module against its neighbours, and a
+full-page editor loses that context.
+
+One form serves both adding and editing (`ModuleForm`, `IntakeForm`), and one
+validator serves both actions (`readModuleFields`, `readIntakeFields`). That is
+not only less code — it is what stops a field from quietly becoming create-only,
+which is the usual failure of a separately written editor. An edit is held to
+exactly the rules a new record was: the date ordering, the URL scheme check, the
+title length.
+
+Two details worth knowing:
+
+- **The id never changes on edit.** It is the only stable handle a row has, and
+  regenerating it from a new title would break an edit submitted from a second
+  tab still holding the old one.
+- **`createdAt` is carried over, not refreshed.** It records when the intake was
+  first announced, which is not what an edit changes.
 
 ---
 
@@ -215,6 +235,11 @@ Driven through a real browser against a production build on 2026-08-27:
 - `/admin` redirects to `/admin/login` when signed out; sign-in succeeds and
   lands on the dashboard.
 - Adding a module writes it to the JSON and it appears on `/training`.
+- Editing a module in place changes its title, summary and topics, leaves its
+  `id` untouched, and the row re-renders with the new values.
+- Opening an intake's edit form prefills all three dates correctly — a stored
+  `2026-08-30T06:00:00.000Z` renders as `08/30/2026, 08:00 AM`, so the
+  Kigali ⇄ UTC conversion round-trips exactly.
 - Removing it (two-step confirm, no browser dialog) removes it from both.
 - Creating an intake stores the Kigali time correctly as UTC
   (09:00 CAT → `07:00:00.000Z`) and publishes it to `/training` with a live
