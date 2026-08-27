@@ -7,7 +7,7 @@
 // separately written editor — a field quietly becomes create-only and the
 // only way to change it is to delete the record and retype it.
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect } from "react";
 import { Check, Plus } from "lucide-react";
 import { createModuleAction, updateModuleAction } from "@/app/admin/actions";
 import { Feedback, Field, Select, SubmitButton, TextArea, TextInput } from "@/components/admin/ui";
@@ -23,18 +23,22 @@ export default function ModuleForm({
 }) {
   const editing = module !== undefined;
   const [state, formAction] = useActionState(editing ? updateModuleAction : createModuleAction, {});
-  const form = useRef<HTMLFormElement>(null);
 
+  // React 19 resets an uncontrolled form after the action completes, which is
+  // what the add form wants. On failure the action hands back what was
+  // submitted so the fields can be re-seeded instead of blanked.
+  const seed = (field: keyof TrainingModule & string, fallback?: string) =>
+    state.values?.[field] ?? fallback;
+
+  // An edit form closes once its save lands; the row underneath re-renders
+  // with the new values. In an effect, not in render — calling a parent's
+  // setState while rendering is not allowed.
   useEffect(() => {
-    if (!state.success) return;
-    // An edit form closes on success; the add form clears so the next module
-    // can be typed straight away. Clearing an edit form would blank the row.
-    if (editing) onSaved?.();
-    else form.current?.reset();
-  }, [state.success, editing, onSaved]);
+    if (editing && state.success) onSaved?.();
+  }, [editing, state.success, onSaved]);
 
   return (
-    <form ref={form} action={formAction} className="flex flex-col gap-5">
+    <form action={formAction} className="flex flex-col gap-5">
       <Feedback state={state} />
       {editing ? <input type="hidden" name="id" value={module.id} /> : null}
 
@@ -45,13 +49,13 @@ export default function ModuleForm({
             name="title"
             required
             maxLength={160}
-            defaultValue={module?.title}
+            defaultValue={seed("title", module?.title)}
             placeholder="Module IV: Financial Analysis"
           />
         </Field>
 
         <Field label="Icon" htmlFor={`${module?.id ?? "new"}-icon`} hint="Shown on the module card.">
-          <Select id={`${module?.id ?? "new"}-icon`} name="icon" defaultValue={module?.icon ?? "book"}>
+          <Select id={`${module?.id ?? "new"}-icon`} name="icon" defaultValue={seed("icon", module?.icon ?? "book")}>
             {MODULE_ICON_CHOICES.map((name) => (
               <option key={name} value={name}>
                 {name.replace(/-/g, " ")}
@@ -69,7 +73,7 @@ export default function ModuleForm({
         <TextInput
           id={`${module?.id ?? "new"}-summary`}
           name="summary"
-          defaultValue={module?.summary}
+          defaultValue={seed("summary", module?.summary)}
           placeholder="For finance staff moving into reporting roles."
         />
       </Field>
@@ -85,7 +89,7 @@ export default function ModuleForm({
           name="items"
           required
           rows={editing ? 12 : 9}
-          defaultValue={module?.items.join("\n")}
+          defaultValue={state.values?.items ?? module?.items.join("\n")}
           placeholder={"Reading a set of financial statements\nRatio analysis\nWorking capital management"}
         />
       </Field>

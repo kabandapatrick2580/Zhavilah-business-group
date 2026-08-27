@@ -1,43 +1,145 @@
 import "server-only";
 
-// The training catalogue, stored as a JSON file on disk.
+// The training catalogue: two backends behind one pair of functions.
 //
-// WHY A FILE, AND WHAT IT COSTS
+// WHY TWO
 //
-// This is a deliberate first step, not a destination. It gives the client a
-// working dashboard with no database account to create, no migrations and no
-// recurring cost — the same "blocked on an external account" problem that has
-// held up `docs/CONTACT-FORM.md` and `docs/CMS-IMPLEMENTATION.md`.
+// The catalogue started as a JSON file, which works on any host with a real
+// disk and is pleasant to develop against — you can open it in an editor and
+// `git diff` it. It does not work on Vercel: the deployment bundle is
+// read-only and each invocation may land on a fresh instance, so a save either
+// fails outright or is lost on the next cold start. That is not a setting to
+// change; a file store and serverless hosting are structurally incompatible.
 //
-// The price is that **writes only persist on a host with a writable, persistent
-// filesystem** — a VPS, a container with a volume, or `next start` on your own
-// machine. On Vercel and other serverless platforms the bundle is read-only and
-// each invocation gets a fresh instance, so a save either fails outright or is
-// silently lost on the next cold start. `writeTraining` detects the read-only
-// case and reports it, so the dashboard says so instead of pretending to save.
+// So writes go to Vercel Blob when a Blob store is connected, and to the file
+// otherwise. The switch is the presence of BLOB_READ_WRITE_TOKEN, which Vercel
+// injects automatically when you connect a store to the project. Nothing else
+// in the app knows which one is in use.
 //
-// Everything the rest of the app touches goes through this module. Swapping the
-// file for Postgres later means reimplementing these two functions and nothing
-// else.
+// The file remains the SEED. On a deployment where the blob does not exist yet,
+// `readTraining` falls back to the committed `data/training.json`, so a fresh
+// deploy renders the catalogue immediately rather than an empty page. The first
+// save creates the blob — and from that moment the blob is authoritative. See
+// the warning on `readFromFile`.
+//
+// Everything the rest of the app touches goes through this module. Swapping in
+// Sanity or Postgres later means reimplementing these two exported functions
+// and nothing else.
 
 import { readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { get, put } from "@vercel/blob";
 import { parseTrainingData, type TrainingData } from "@/lib/training/types";
 
 // Resolved from the working directory, which Next sets to the project root in
 // both `next dev` and `next start`.
 const FILE = path.join(process.cwd(), "data", "training.json");
 
+// A fixed pathname (no random suffix) so it can be read back by name.
+const BLOB_PATH = "training/catalogue.json";
+
 const EMPTY: TrainingData = { modules: [], intakes: [] };
 
 /**
- * Reads the catalogue. Never throws: a missing or corrupt file yields an empty
- * catalogue and logs, because a broken JSON file must not take /training down.
+ * Vercel sets this automatically for a project with a Blob store connected.
+ * Absent locally unless you `vercel env pull`, which is what keeps development
+ * on the file.
+ */
+function blobConfigured(): boolean {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+}
+
+// ---------------------------------------------------------------------------
+// The public pair
+// ---------------------------------------------------------------------------
+
+/**
+ * Reads the catalogue. Never throws: any failure yields the committed seed (or
+ * an empty catalogue), because a storage problem must not take /training down.
  */
 export async function readTraining(): Promise<TrainingData> {
+  if (blobConfigured()) {
+    const stored = await readFromBlob();
+    if (stored) return stored;
+    // No blob yet — first deploy, before anything has been saved.
+  }
+  return readFromFile();
+}
+
+export type WriteResult = { ok: true } | { ok: false; reason: "readonly" | "failed"; message: string };
+
+export async function writeTraining(data: TrainingData): Promise<WriteResult> {
+  return blobConfigured() ? writeToBlob(data) : writeToFile(data);
+}
+
+// ---------------------------------------------------------------------------
+// Vercel Blob
+// ---------------------------------------------------------------------------
+
+async function readFromBlob(): Promise<TrainingData | null> {
   try {
-    const raw = await readFile(FILE, "utf8");
-    return parseTrainingData(JSON.parse(raw));
+    // `useCache: false` reads from origin storage rather than the CDN. Without
+    // it a save would not be visible until the edge TTL expired, which would
+    // make the dashboard look broken for a minute after every edit — exactly
+    // the window in which someone checks whether their change worked.
+    const result = await get(BLOB_PATH, { access: "public", useCache: false });
+
+    // `get` resolves to null when the blob does not exist. 304 cannot happen
+    // here because no ifNoneMatch is sent, but the type allows it.
+    if (!result || result.statusCode !== 200) return null;
+
+    return parseTrainingData(JSON.parse(await new Response(result.stream).text()));
+  } catch (error) {
+    // Falls through to the committed seed. Logged rather than swallowed: the
+    // page will render stale content and that should be visible in the logs.
+    console.error("[training] could not read the blob, falling back to data/training.json:", error);
+    return null;
+  }
+}
+
+async function writeToBlob(data: TrainingData): Promise<WriteResult> {
+  try {
+    await put(BLOB_PATH, `${JSON.stringify(data, null, 2)}\n`, {
+      // The catalogue is the same marketing copy /training already publishes —
+      // module titles, dates, a fee, a link to a form. There is nothing here
+      // that is not already on a public page, which is why public access is
+      // fine. Nothing with a person in it may ever be stored here.
+      access: "public",
+      contentType: "application/json",
+      // Overwrite one stable path rather than accumulating versioned blobs.
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      // Reads bypass the CDN anyway; this only bounds how long a direct hit on
+      // the blob URL could be stale.
+      cacheControlMaxAge: 60,
+    });
+    return { ok: true };
+  } catch (error) {
+    console.error("[training] could not write the blob:", error);
+    return {
+      ok: false,
+      reason: "failed",
+      message:
+        "The change could not be saved to Blob storage. Please try again — if it keeps happening, " +
+        "check that the Blob store is still connected to this project.",
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Local filesystem
+// ---------------------------------------------------------------------------
+
+/**
+ * Reads the committed file.
+ *
+ * WARNING: once a deployment has written its blob, this file is only the seed
+ * for a *new* store — editing it in git and redeploying changes nothing that
+ * anyone sees. Edit through /admin, or delete the blob to re-seed from here.
+ */
+async function readFromFile(): Promise<TrainingData> {
+  try {
+    return parseTrainingData(JSON.parse(await readFile(FILE, "utf8")));
   } catch (error) {
     const code = (error as NodeJS.ErrnoException)?.code;
     // ENOENT on a first run is expected and unremarkable; anything else is not.
@@ -48,16 +150,12 @@ export async function readTraining(): Promise<TrainingData> {
   }
 }
 
-export type WriteResult = { ok: true } | { ok: false; reason: "readonly" | "failed"; message: string };
-
 /**
- * Persists the catalogue.
- *
  * Written to a sibling temp file and renamed into place: `rename` is atomic
  * within a filesystem, so a crash mid-write leaves the previous file intact
  * rather than a truncated one that would parse to an empty catalogue.
  */
-export async function writeTraining(data: TrainingData): Promise<WriteResult> {
+async function writeToFile(data: TrainingData): Promise<WriteResult> {
   const temp = `${FILE}.${process.pid}.tmp`;
   try {
     await writeFile(temp, `${JSON.stringify(data, null, 2)}\n`, "utf8");
@@ -67,16 +165,16 @@ export async function writeTraining(data: TrainingData): Promise<WriteResult> {
     const code = (error as NodeJS.ErrnoException)?.code;
     console.error("[training] could not write data/training.json:", error);
 
-    // EROFS: read-only filesystem. EACCES/EPERM: no write permission. On a
-    // serverless host the deployment bundle is read-only and this is the normal
-    // outcome, so it gets its own message rather than a generic failure.
+    // EROFS: read-only filesystem. EACCES/EPERM: no write permission. This is
+    // the normal outcome of running the file backend on a serverless host, so
+    // it names the fix rather than reporting a generic failure.
     if (code === "EROFS" || code === "EACCES" || code === "EPERM") {
       return {
         ok: false,
         reason: "readonly",
         message:
-          "The server's filesystem is read-only, so this change could not be saved. " +
-          "The JSON store needs a host with a writable disk — see docs/TRAINING-DASHBOARD.md.",
+          "This server's filesystem is read-only, so the change could not be saved. " +
+          "Connect a Vercel Blob store to the project and redeploy — see docs/TRAINING-DASHBOARD.md §6.",
       };
     }
     return { ok: false, reason: "failed", message: "The change could not be saved. Please try again." };

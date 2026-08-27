@@ -101,7 +101,11 @@ environment variables (`ADMIN_USERNAME`, `ADMIN_PASSWORD`,
 An intake carries an opening date, is announced with a live countdown, and links
 out to a third-party application form (Google Forms or similar) in a new tab.
 
-**Writes need a host with a writable disk** — a VPS or `next start`, not a
-read-only serverless bundle. See
-[`docs/TRAINING-DASHBOARD.md`](docs/TRAINING-DASHBOARD.md) for the reasoning,
-the security model and the migration path.
+Storage has two backends behind one interface: **Vercel Blob** in production
+(the serverless bundle is read-only, so a file cannot be written) and
+`data/training.json` locally. The switch is whether `BLOB_READ_WRITE_TOKEN` is
+set, which Vercel injects once a Blob store is connected to the project.
+
+See [`docs/TRAINING-DASHBOARD.md`](docs/TRAINING-DASHBOARD.md) for the setup
+steps, the security model and what happens when you edit the committed file
+after the blob exists.

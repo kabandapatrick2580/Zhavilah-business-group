@@ -18,7 +18,40 @@ import { readTraining, writeTraining, type WriteResult } from "@/lib/training/st
 import { isIconName, type TrainingData, type TrainingIntake, type TrainingModule } from "@/lib/training/types";
 import { localInputToIso } from "@/lib/training/dates";
 
-export type ActionState = { error?: string; success?: string };
+export type ActionState = {
+  error?: string;
+  success?: string;
+  /**
+   * What was submitted, echoed back on failure.
+   *
+   * React 19 resets an uncontrolled form after a form action completes —
+   * whether it succeeded or not. Without this the admin loses everything they
+   * typed the moment a single field fails validation, which on the ten-field
+   * intake form is a genuinely destructive way to report a typo. The forms
+   * re-seed their `defaultValue`s from this.
+   */
+  values?: Record<string, string>;
+};
+
+/** Captures the submitted text fields so a failed action can hand them back. */
+function snapshot(formData: FormData, keys: readonly string[]): Record<string, string> {
+  const values: Record<string, string> = {};
+  for (const key of keys) {
+    const value = formData.get(key);
+    if (typeof value === "string") values[key] = value;
+  }
+  // Checkboxes are absent from the payload when unticked, so the state has to
+  // be recorded explicitly rather than inferred from a missing key.
+  values.published = formData.get("published") !== null ? "on" : "";
+  return values;
+}
+
+const MODULE_FIELDS = ["title", "icon", "summary", "items"] as const;
+
+const INTAKE_FIELDS = [
+  "title", "summary", "opensAt", "closesAt", "startsAt",
+  "mode", "location", "fee", "seats", "applicationUrl",
+] as const;
 
 // Five attempts per fifteen minutes. The limiter is per-instance and the
 // caveat in `lib/rate-limit.ts` applies — a flood spread across cold starts
@@ -108,10 +141,14 @@ export async function createModuleAction(_prev: ActionState, formData: FormData)
   await requireAdmin();
 
   const parsed = readModuleFields(formData);
-  if ("error" in parsed) return parsed;
+  if ("error" in parsed) return { ...parsed, values: snapshot(formData, MODULE_FIELDS) };
 
   const module: TrainingModule = { id: makeId(parsed.fields.title), ...parsed.fields };
-  return save((data) => ({ ...data, modules: [...data.modules, module] }), `"${module.title}" was added.`);
+  return save(
+    (data) => ({ ...data, modules: [...data.modules, module] }),
+    `"${module.title}" was added.`,
+    snapshot(formData, MODULE_FIELDS),
+  );
 }
 
 export async function updateModuleAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -124,7 +161,7 @@ export async function updateModuleAction(_prev: ActionState, formData: FormData)
   }
 
   const parsed = readModuleFields(formData);
-  if ("error" in parsed) return parsed;
+  if ("error" in parsed) return { ...parsed, values: snapshot(formData, MODULE_FIELDS) };
 
   // The id is deliberately not regenerated from the new title. It is the only
   // stable handle the row has, and rewriting it would break an edit submitted
@@ -135,6 +172,7 @@ export async function updateModuleAction(_prev: ActionState, formData: FormData)
       modules: current.modules.map((module) => (module.id === id ? { id, ...parsed.fields } : module)),
     }),
     `"${parsed.fields.title}" was updated.`,
+    snapshot(formData, MODULE_FIELDS),
   );
 }
 
@@ -231,7 +269,7 @@ export async function createIntakeAction(_prev: ActionState, formData: FormData)
   await requireAdmin();
 
   const parsed = readIntakeFields(formData);
-  if ("error" in parsed) return parsed;
+  if ("error" in parsed) return { ...parsed, values: snapshot(formData, INTAKE_FIELDS) };
 
   const intake: TrainingIntake = {
     id: makeId(parsed.fields.title),
@@ -239,7 +277,11 @@ export async function createIntakeAction(_prev: ActionState, formData: FormData)
     createdAt: new Date().toISOString(),
   };
 
-  return save((data) => ({ ...data, intakes: [intake, ...data.intakes] }), `"${intake.title}" was created.`);
+  return save(
+    (data) => ({ ...data, intakes: [intake, ...data.intakes] }),
+    `"${intake.title}" was created.`,
+    snapshot(formData, INTAKE_FIELDS),
+  );
 }
 
 export async function updateIntakeAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -253,7 +295,7 @@ export async function updateIntakeAction(_prev: ActionState, formData: FormData)
   }
 
   const parsed = readIntakeFields(formData);
-  if ("error" in parsed) return parsed;
+  if ("error" in parsed) return { ...parsed, values: snapshot(formData, INTAKE_FIELDS) };
 
   // `createdAt` is carried over rather than refreshed: it records when the
   // intake was first announced, which is not what an edit changes.
@@ -265,6 +307,7 @@ export async function updateIntakeAction(_prev: ActionState, formData: FormData)
       ),
     }),
     `"${parsed.fields.title}" was updated.`,
+    snapshot(formData, INTAKE_FIELDS),
   );
 }
 
@@ -311,10 +354,16 @@ export async function toggleIntakeAction(_prev: ActionState, formData: FormData)
  * at which it stops being acceptable is the point at which this needs a real
  * database.
  */
-async function save(transform: (data: TrainingData) => TrainingData, success: string): Promise<ActionState> {
+async function save(
+  transform: (data: TrainingData) => TrainingData,
+  success: string,
+  values?: Record<string, string>,
+): Promise<ActionState> {
   const data = await readTraining();
   const result: WriteResult = await writeTraining(transform(data));
-  if (!result.ok) return { error: result.message };
+  // The snapshot matters most here: a storage outage is exactly when losing a
+  // long intake form would be least forgivable.
+  if (!result.ok) return { error: result.message, ...(values ? { values } : {}) };
 
   // /training is statically rendered, so it keeps serving the previous HTML
   // until the cache entry for it is dropped. The dashboard's own pages read

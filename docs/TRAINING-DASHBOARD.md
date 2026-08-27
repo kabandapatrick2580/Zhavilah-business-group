@@ -78,7 +78,9 @@ that is unreachable.
 
 ## 3. Where the data lives
 
-`data/training.json`, committed to the repository:
+`data/training.json`, committed to the repository — the seed, and the live
+store in local development. In production the same JSON lives in Vercel Blob;
+see §6.
 
 ```json
 {
@@ -157,35 +159,80 @@ The dashboard's own pages read cookies and are therefore always dynamic.
 
 ---
 
-## 6. The one real constraint: writes need a writable disk
+## 6. Storage: Vercel Blob in production, the file locally
 
-**The JSON store only persists on a host with a writable, persistent
-filesystem** — a VPS, a container with a volume, or `next start` on your own
-machine.
+`lib/training/store.ts` has two backends behind one pair of functions, and the
+presence of `BLOB_READ_WRITE_TOKEN` chooses between them:
 
-On Vercel and comparable serverless platforms the deployment bundle is
-read-only and each invocation may land on a fresh instance. A save there either
-fails outright or is silently lost on the next cold start. `writeTraining`
-detects the read-only case (`EROFS`/`EACCES`/`EPERM`) and the dashboard says so
-in plain language rather than reporting a success that did not happen.
+| Token | Backend | Where |
+| --- | --- | --- |
+| set | Vercel Blob | production on Vercel |
+| unset | `data/training.json` | local development |
 
-Three ways forward, in the order I would take them:
+### Why it needs to be this way
 
-1. **Deploy to a host with a disk.** A small VPS running `next start` behind
-   nginx. This is also the honest answer to the Vercel commercial-use licensing
-   problem raised in `TRAINING-SYSTEM.md` §1, which applies to this site today
-   regardless of the dashboard.
-2. **Move the store to Sanity.** The catalogue is marketing copy, not personal
-   data, so the public-read caveat in `CMS-IMPLEMENTATION.md` §1 does not bite —
-   this is exactly the `intake` document that `TRAINING-SYSTEM.md` §5 suggests
-   adding. It keeps serverless hosting and gives the client one CMS instead of
-   two places to edit.
-3. **Move the store to Postgres.** Correct, and the direction §3 of
-   `TRAINING-SYSTEM.md` points, but it is the heaviest option for two lists that
-   change a few times a year.
+Vercel ships the app as a **read-only bundle**. `data/training.json` is baked
+in at build time and the running function cannot write back to it; the only
+writable path is `/tmp`, which is per-instance and discarded. A file store and
+serverless hosting are structurally incompatible — no setting changes that.
 
-Whichever is chosen, the change is confined to the two functions in
-`lib/training/store.ts`. Nothing else in the app reads or writes the file.
+This bit us in production on 2026-08-27: the dashboard reported *"The server's
+filesystem is read-only, so this change could not be saved."* That message was
+correct and deliberate — `writeToFile` detects `EROFS`/`EACCES`/`EPERM` and
+says so rather than reporting a save that did not happen — but the fix is to
+move the store, which is what Blob does.
+
+### Setting it up
+
+1. Vercel dashboard → **Storage** → **Blob** → create a store → **Connect** it
+   to this project.
+2. Redeploy. Vercel injects `BLOB_READ_WRITE_TOKEN` automatically; you never
+   set it by hand.
+
+Nothing else changes — the dashboard, the seven server actions, `/training`,
+the countdown and the JSON shape are all untouched.
+
+### Three things to know
+
+**The committed file is the seed, not the source of truth.** On a deployment
+where the blob does not exist yet, `readTraining` falls back to
+`data/training.json`, so a fresh deploy renders the catalogue immediately
+rather than an empty page. **The first save creates the blob, and from that
+moment the blob wins.** Editing `data/training.json` in git and redeploying
+will then change nothing anyone sees. Edit through /admin, or delete the blob
+to re-seed.
+
+**Reads bypass the CDN.** `get(..., { useCache: false })` reads from origin
+storage, so a save is visible on the very next render. Without it the dashboard
+would look broken for up to a minute after every edit — precisely the window in
+which someone checks whether their change worked.
+
+**The blob is public.** It holds the same marketing copy `/training` already
+publishes: module titles, dates, a fee, a link to a form. Nothing in it is not
+already on a public page. **Nothing with a person in it may ever be stored
+here** — that line is the same one `TRAINING-SYSTEM.md` §2 draws around Sanity,
+and it applies identically.
+
+### If you ever move off Vercel
+
+The change is confined to the two exported functions. The alternatives
+considered, and why:
+
+- **Sanity** — `studio/schemaTypes/trainingModule.ts` already exists for exactly
+  this data. Best long-term answer: one CMS for blog, gallery and training, and
+  it keeps the static-page architecture. Blocked on the Sanity account that
+  `CMS-IMPLEMENTATION.md` Phase 0 has been waiting on.
+- **A VPS running `next start`** — the file backend then works as written, with
+  no code change, and it also resolves the Vercel Hobby commercial-use licensing
+  problem in `TRAINING-SYSTEM.md` §1, which applies to this site today
+  regardless of the dashboard.
+- **Postgres on Neon** — correct and durable, and the direction
+  `TRAINING-SYSTEM.md` §3 points, but heavy for two lists that change a few
+  times a year. Worth it when Phase 1 (applications, admissions) is actually
+  being built.
+
+Note that Blob does **not** resolve the Hobby commercial-use question. That is a
+licensing matter, not a quota, and it is still open.
 
 ---
 
@@ -241,6 +288,10 @@ Driven through a real browser against a production build on 2026-08-27:
   `2026-08-30T06:00:00.000Z` renders as `08/30/2026, 08:00 AM`, so the
   Kigali ⇄ UTC conversion round-trips exactly.
 - Removing it (two-step confirm, no browser dialog) removes it from both.
+- With `BLOB_READ_WRITE_TOKEN` set, the Blob backend is taken; when the store is
+  unreachable `/training` still renders from the committed seed instead of going
+  blank, and a save reports a Blob-specific error rather than the filesystem one.
+- A failed save leaves the form's contents intact (see §10).
 - Creating an intake stores the Kigali time correctly as UTC
   (09:00 CAT → `07:00:00.000Z`) and publishes it to `/training` with a live
   countdown.
@@ -250,5 +301,19 @@ Driven through a real browser against a production build on 2026-08-27:
 - Hiding an intake removes it from `/training` immediately; the next eligible
   intake takes its place.
 
-Not yet verified, because it needs the real host: the read-only-filesystem
-message in §6.
+Not verified locally, because it needs the real store: a successful Blob write.
+The read and failure paths were exercised with an invalid token.
+
+---
+
+## 10. Forms keep their contents when a save fails
+
+React 19 resets an uncontrolled form after a form action completes — **whether
+it succeeded or not**. Left alone that means one bad field, or one storage
+outage, wipes everything the admin typed; on the ten-field intake form that is a
+destructive way to report a typo.
+
+So every create/update action returns a `values` snapshot of the submission on
+failure, and the forms seed their `defaultValue`s from it. Found on 2026-08-27
+while testing the Blob failure path, and fixed then — an earlier comment in
+`ModuleForm.tsx` claimed the opposite behaviour and was wrong.

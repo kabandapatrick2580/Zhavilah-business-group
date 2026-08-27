@@ -3,7 +3,7 @@
 // One form for both crafting a new intake and editing an existing one — see
 // the note at the top of ModuleForm.tsx for why they are not written twice.
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect } from "react";
 import { CalendarPlus, Check } from "lucide-react";
 import { createIntakeAction, updateIntakeAction } from "@/app/admin/actions";
 import { Feedback, Field, SubmitButton, TextArea, TextInput } from "@/components/admin/ui";
@@ -20,19 +20,20 @@ export default function IntakeForm({
 }) {
   const editing = intake !== undefined;
   const [state, formAction] = useActionState(editing ? updateIntakeAction : createIntakeAction, {});
-  const form = useRef<HTMLFormElement>(null);
+
+  // See the note in ModuleForm: React clears an uncontrolled form after the
+  // action runs, so a rejected submission is re-seeded from what it sent back.
+  const seed = (field: string, fallback?: string) => state.values?.[field] ?? fallback;
 
   useEffect(() => {
-    if (!state.success) return;
-    if (editing) onSaved?.();
-    else form.current?.reset();
-  }, [state.success, editing, onSaved]);
+    if (editing && state.success) onSaved?.();
+  }, [editing, state.success, onSaved]);
 
   // Namespaced so several forms can be open on the page without colliding ids.
   const key = intake?.id ?? "new";
 
   return (
-    <form ref={form} action={formAction} className="flex flex-col gap-5">
+    <form action={formAction} className="flex flex-col gap-5">
       <Feedback state={state} />
       {editing ? <input type="hidden" name="id" value={intake.id} /> : null}
 
@@ -42,7 +43,7 @@ export default function IntakeForm({
           name="title"
           required
           maxLength={160}
-          defaultValue={intake?.title}
+          defaultValue={seed("title", intake?.title)}
           placeholder="October 2026 Practical Accounting Intake"
         />
       </Field>
@@ -56,7 +57,7 @@ export default function IntakeForm({
           id={`${key}-summary`}
           name="summary"
           rows={3}
-          defaultValue={intake?.summary}
+          defaultValue={seed("summary", intake?.summary)}
           placeholder="Twelve evening sessions covering the full practical accounting, taxation and QuickBooks syllabus."
         />
       </Field>
@@ -75,7 +76,7 @@ export default function IntakeForm({
             name="opensAt"
             type="datetime-local"
             required
-            defaultValue={intake ? isoToLocalInput(intake.opensAt) : undefined}
+            defaultValue={seed("opensAt", intake ? isoToLocalInput(intake.opensAt) : undefined)}
           />
         </Field>
 
@@ -84,7 +85,7 @@ export default function IntakeForm({
             id={`${key}-closesAt`}
             name="closesAt"
             type="datetime-local"
-            defaultValue={intake?.closesAt ? isoToLocalInput(intake.closesAt) : undefined}
+            defaultValue={seed("closesAt", intake?.closesAt ? isoToLocalInput(intake.closesAt) : undefined)}
           />
         </Field>
 
@@ -93,21 +94,21 @@ export default function IntakeForm({
             id={`${key}-startsAt`}
             name="startsAt"
             type="datetime-local"
-            defaultValue={intake?.startsAt ? isoToLocalInput(intake.startsAt) : undefined}
+            defaultValue={seed("startsAt", intake?.startsAt ? isoToLocalInput(intake.startsAt) : undefined)}
           />
         </Field>
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="Delivery" htmlFor={`${key}-mode`} hint="Classroom, Online, Hybrid, Evenings & weekends…">
-          <TextInput id={`${key}-mode`} name="mode" defaultValue={intake?.mode} placeholder="Classroom & online" />
+          <TextInput id={`${key}-mode`} name="mode" defaultValue={seed("mode", intake?.mode)} placeholder="Classroom & online" />
         </Field>
 
         <Field label="Location" htmlFor={`${key}-location`}>
           <TextInput
             id={`${key}-location`}
             name="location"
-            defaultValue={intake?.location}
+            defaultValue={seed("location", intake?.location)}
             placeholder="Ikaze House, Remera-Gisimenti"
           />
         </Field>
@@ -116,7 +117,7 @@ export default function IntakeForm({
           <TextInput
             id={`${key}-fee`}
             name="fee"
-            defaultValue={intake?.fee}
+            defaultValue={seed("fee", intake?.fee)}
             placeholder="RWF 150,000 per participant"
           />
         </Field>
@@ -128,7 +129,7 @@ export default function IntakeForm({
             type="number"
             min={1}
             step={1}
-            defaultValue={intake?.seats}
+            defaultValue={seed("seats", intake?.seats ? String(intake.seats) : undefined)}
             placeholder="25"
           />
         </Field>
@@ -146,7 +147,7 @@ export default function IntakeForm({
           type="url"
           required
           inputMode="url"
-          defaultValue={intake?.applicationUrl}
+          defaultValue={seed("applicationUrl", intake?.applicationUrl)}
           placeholder="https://forms.gle/…"
         />
       </Field>
@@ -155,7 +156,7 @@ export default function IntakeForm({
         <input
           type="checkbox"
           name="published"
-          defaultChecked={intake ? intake.published : true}
+          defaultChecked={state.values ? state.values.published === "on" : intake ? intake.published : true}
           className="mt-0.5 size-4 shrink-0 accent-[#251f61]"
         />
         <span className="text-sm text-brand-ink">
