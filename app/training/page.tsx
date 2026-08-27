@@ -1,68 +1,16 @@
 import type { Metadata } from "next";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import ServiceHistory, { type HistoryBlock } from "@/components/services/ServiceHistory";
-import { BookOpen, Check, Laptop, Percent } from "lucide-react";
+import { Check } from "lucide-react";
+import UpcomingIntake from "@/components/training/UpcomingIntake";
+import { SERVICE_ICONS } from "@/components/services/serviceIcons";
+import { readTraining } from "@/lib/training/store";
+import { featuredIntake } from "@/lib/training/select";
+import { intakePhase } from "@/lib/training/dates";
 
 export const metadata: Metadata = {
   title: "Training Center",
 };
-
-const modules: { title: string; icon: React.ElementType; items: string[] }[] = [
-  {
-    title: "Module I: Applied Business Accounting",
-    icon: BookOpen,
-    items: [
-      "Meaning of Accounting",
-      "Difference Between Accounting and Bookkeeping",
-      "Users of Accounting Information",
-      "Characteristics of Good Accounting Information",
-      "Meaning of Business Transaction",
-      "Difference Between Business Transactions and Events",
-      "Cash Accounting and Accrual Accounting",
-      "Journal Entries",
-      "Elements of Financial Statements",
-      "Accounting Equation",
-      "Chart of Accounts, General Ledger & Trial Balance",
-      "Payroll Management",
-      "Inventory Management",
-      "Month End Process",
-      "Preparation of Financial Statements",
-    ],
-  },
-  {
-    title: "Module II: Taxation",
-    icon: Percent,
-    items: [
-      "Corporate Income Tax (CIT)",
-      "Value Added Tax (VAT)",
-      "Withholding Taxes (WHT)",
-      "Payroll Taxes",
-      "Local Government Taxes",
-      "Learn Basic Skills on How to Use EBM Invoicing Software",
-    ],
-  },
-  {
-    title: "Module III: QuickBooks Training",
-    icon: Laptop,
-    items: [
-      "Setting Up a Company File",
-      "Customizing a Company File",
-      "Create Accounts and Chart of Account",
-      "Setting Up Customers, Vendors, Items and Services",
-      "Create Quotation, Purchase Order, Invoices and Bills",
-      "Receive Payment from Customers",
-      "Make Payment of Bills to Vendors",
-      "Make Journal Entries",
-      "Create and Record Memorized Transactions",
-      "Make Bank Reconciliation",
-      "Make Business Budget",
-      "Create Assets Register",
-      "Make Month End Adjustment",
-      "Make Financial Statements in QuickBooks",
-      "Customize Reports and Templates",
-    ],
-  },
-];
 
 const leftColumn: HistoryBlock[] = [
   { kind: "image", icon: "graduation", src: "/assets/img/about/4 - Copy.jpeg", alt: "Accounting Training" },
@@ -106,10 +54,19 @@ const rightColumn: HistoryBlock[] = [
   },
 ];
 
-export default function TrainingPage() {
+export default async function TrainingPage() {
+  // The catalogue is edited from /admin and stored in data/training.json.
+  const { modules, intakes } = await readTraining();
+  const now = Date.now();
+  const intake = featuredIntake(intakes, now);
+
   return (
     <main>
       <Breadcrumb title="Training Center" trail={[{ label: "Training" }]} />
+
+      {/* Announced above the introduction: someone arriving from a poster or a
+          WhatsApp message is here for the dates, not the prospectus. */}
+      {intake ? <UpcomingIntake intake={intake} initialPhase={intakePhase(intake, now)} /> : null}
 
       {/* Intro */}
       <section className="py-20">
@@ -134,34 +91,44 @@ export default function TrainingPage() {
       </section>
 
       {/* Training contents */}
-      <section className="bg-brand-haze py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          <h2 className="mb-10 font-heading text-3xl font-extrabold text-brand-ink sm:text-4xl">
-            Training Contents
-          </h2>
-          <div className="grid gap-6 lg:grid-cols-3">
-            {modules.map(({ title, icon: Icon, items }) => (
-              <div
-                key={title}
-                className="group rounded-2xl border border-brand-line bg-white p-8 shadow-[0_12px_35px_rgba(11,38,74,0.06)] transition hover:-translate-y-1.5 hover:border-brand/40"
-              >
-                <span className="mb-5 flex size-12 items-center justify-center rounded-xl bg-brand-tint text-brand transition-colors duration-300 group-hover:bg-brand group-hover:text-white">
-                  <Icon className="size-5" />
-                </span>
-                <h3 className="font-heading text-lg font-extrabold text-brand-ink">{title}</h3>
-                <ul className="mt-5 space-y-2.5">
-                  {items.map((item) => (
-                    <li key={item} className="flex gap-2.5 text-sm text-brand-muted">
-                      <Check className="mt-0.5 size-4 shrink-0 text-brand" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+      {modules.length > 0 ? (
+        <section className="bg-brand-haze py-20">
+          <div className="mx-auto max-w-7xl px-6">
+            <h2 className="mb-10 font-heading text-3xl font-extrabold text-brand-ink sm:text-4xl">
+              Training Contents
+            </h2>
+            <div className="grid gap-6 lg:grid-cols-3">
+              {modules.map((module) => {
+                // The stored icon is a name, not a component: a Server Component
+                // cannot hand a component down to the client. See serviceIcons.tsx.
+                const Icon = SERVICE_ICONS[module.icon];
+                return (
+                  <div
+                    key={module.id}
+                    className="group rounded-2xl border border-brand-line bg-white p-8 shadow-[0_12px_35px_rgba(11,38,74,0.06)] transition hover:-translate-y-1.5 hover:border-brand/40"
+                  >
+                    <span className="mb-5 flex size-12 items-center justify-center rounded-xl bg-brand-tint text-brand transition-colors duration-300 group-hover:bg-brand group-hover:text-white">
+                      <Icon className="size-5" />
+                    </span>
+                    <h3 className="font-heading text-lg font-extrabold text-brand-ink">{module.title}</h3>
+                    {module.summary ? (
+                      <p className="mt-2 text-sm leading-relaxed text-brand-muted">{module.summary}</p>
+                    ) : null}
+                    <ul className="mt-5 space-y-2.5">
+                      {module.items.map((item) => (
+                        <li key={item} className="flex gap-2.5 text-sm text-brand-muted">
+                          <Check className="mt-0.5 size-4 shrink-0 text-brand" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       <ServiceHistory columns={[leftColumn, rightColumn]} />
     </main>

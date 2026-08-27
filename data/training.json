@@ -1,0 +1,78 @@
+{
+  "modules": [
+    {
+      "id": "applied-business-accounting",
+      "title": "Module I: Applied Business Accounting",
+      "icon": "book",
+      "items": [
+        "Meaning of Accounting",
+        "Difference Between Accounting and Bookkeeping",
+        "Users of Accounting Information",
+        "Characteristics of Good Accounting Information",
+        "Meaning of Business Transaction",
+        "Difference Between Business Transactions and Events",
+        "Cash Accounting and Accrual Accounting",
+        "Journal Entries",
+        "Elements of Financial Statements",
+        "Accounting Equation",
+        "Chart of Accounts, General Ledger & Trial Balance",
+        "Payroll Management",
+        "Inventory Management",
+        "Month End Process",
+        "Preparation of Financial Statements"
+      ]
+    },
+    {
+      "id": "taxation",
+      "title": "Module II: Taxation",
+      "icon": "percent",
+      "items": [
+        "Corporate Income Tax (CIT)",
+        "Value Added Tax (VAT)",
+        "Withholding Taxes (WHT)",
+        "Payroll Taxes",
+        "Local Government Taxes",
+        "Learn Basic Skills on How to Use EBM Invoicing Software"
+      ]
+    },
+    {
+      "id": "quickbooks-training",
+      "title": "Module III: QuickBooks Training",
+      "icon": "laptop",
+      "items": [
+        "Setting Up a Company File",
+        "Customizing a Company File",
+        "Create Accounts and Chart of Account",
+        "Setting Up Customers, Vendors, Items and Services",
+        "Create Quotation, Purchase Order, Invoices and Bills",
+        "Receive Payment from Customers",
+        "Make Payment of Bills to Vendors",
+        "Make Journal Entries",
+        "Create and Record Memorized Transactions",
+        "Make Bank Reconciliation",
+        "Make Business Budget",
+        "Create Assets Register",
+        "Make Month End Adjustment",
+        "Make Financial Statements in QuickBooks",
+        "Customize Reports and Templates"
+      ]
+    }
+  ],
+  "intakes": [
+    {
+      "id": "septermber-intake-9549d326",
+      "title": "Septermber Intake",
+      "summary": "September Intake",
+      "opensAt": "2026-08-30T06:00:00.000Z",
+      "closesAt": "2026-09-01T04:01:00.000Z",
+      "startsAt": "2026-09-01T04:01:00.000Z",
+      "mode": "Classroom & online",
+      "location": "Ikaze House, Remera-Gisimenti",
+      "fee": "RWF 200,000",
+      "seats": 9,
+      "applicationUrl": "https://forms.gle/zhavilah-october-intake",
+      "published": true,
+      "createdAt": "2026-08-27T16:01:56.172Z"
+    }
+  ]
+}

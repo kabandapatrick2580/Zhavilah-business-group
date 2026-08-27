@@ -88,3 +88,19 @@ set. Both are external setup steps, not code.
 
 See [`docs/CONTACT-FORM.md`](docs/CONTACT-FORM.md) for the decision record,
 architecture, the environment variables required, and what has been verified.
+
+## Training dashboard
+
+`/admin` is an admin area for the training catalogue: the syllabus modules shown
+on `/training`, and the dated intakes people apply to. It signs in with three
+environment variables (`ADMIN_USERNAME`, `ADMIN_PASSWORD`,
+`ADMIN_SESSION_SECRET`) and stores everything in `data/training.json`, which
+`/training` reads.
+
+An intake carries an opening date, is announced with a live countdown, and links
+out to a third-party application form (Google Forms or similar) in a new tab.
+
+**Writes need a host with a writable disk** — a VPS or `next start`, not a
+read-only serverless bundle. See
+[`docs/TRAINING-DASHBOARD.md`](docs/TRAINING-DASHBOARD.md) for the reasoning,
+the security model and the migration path.

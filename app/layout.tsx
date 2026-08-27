@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import ScrollProgress from "@/components/motion/ScrollProgress";
+import SiteChrome from "@/components/SiteChrome";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -56,11 +57,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </noscript>
       </head>
       <body className="font-body text-body antialiased">
-        <ScrollProgress />
-        <Header />
+        {/* Everything inside SiteChrome is dropped on /admin — see the component. */}
+        <SiteChrome>
+          <ScrollProgress />
+          <Header />
+        </SiteChrome>
         {children}
-        <Footer />
-        <CookieConsent />
+        <SiteChrome>
+          <Footer />
+          <CookieConsent />
+        </SiteChrome>
       </body>
     </html>
   );
