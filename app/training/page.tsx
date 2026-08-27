@@ -105,7 +105,7 @@ export default async function TrainingPage() {
                 return (
                   <div
                     key={module.id}
-                    className="group rounded-2xl border border-brand-line bg-white p-8 shadow-[0_12px_35px_rgba(11,38,74,0.06)] transition hover:-translate-y-1.5 hover:border-brand/40"
+                    className="group rounded-2xl border border-brand-line bg-white p-8 shadow-[0_12px_35px_rgba(25,20,65,0.06)] transition hover:-translate-y-1.5 hover:border-brand/40"
                   >
                     <span className="mb-5 flex size-12 items-center justify-center rounded-xl bg-brand-tint text-brand transition-colors duration-300 group-hover:bg-brand group-hover:text-white">
                       <Icon className="size-5" />

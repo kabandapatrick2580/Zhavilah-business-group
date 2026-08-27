@@ -18,7 +18,7 @@ function Card({ member }: { member: TeamMember }) {
 
   return (
     <StaggerItem
-      className="flex h-fit flex-col items-center rounded-2xl border border-brand-line bg-white p-6 text-center shadow-[0_12px_32px_rgba(11,38,74,0.08)]"
+      className="flex h-fit flex-col items-center rounded-2xl border border-brand-line bg-white p-6 text-center shadow-[0_12px_32px_rgba(25,20,65,0.08)]"
       lift
     >
       <motion.div

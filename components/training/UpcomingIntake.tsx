@@ -49,12 +49,12 @@ export default function UpcomingIntake({
   return (
     <section className="bg-white pt-16 pb-4">
       <div className="mx-auto max-w-7xl px-6">
-        <article className="relative isolate overflow-hidden rounded-3xl bg-[linear-gradient(118deg,#0a2447_0%,#103a6b_56%,#17518f_100%)] px-7 py-10 text-white shadow-[0_30px_70px_rgba(11,38,74,0.25)] sm:px-12 sm:py-14">
+        <article className="relative isolate overflow-hidden rounded-3xl bg-[linear-gradient(118deg,#17133e_0%,#251f61_56%,#30287e_100%)] px-7 py-10 text-white shadow-[0_30px_70px_rgba(25,20,65,0.25)] sm:px-12 sm:py-14">
           {/* The light-blue wash from the top right, matching the wide service
               card on the homepage so the two read as one family. */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-[radial-gradient(72%_130%_at_87%_12%,rgba(124,192,245,0.26)_0%,rgba(10,36,71,0)_62%)]"
+            className="absolute inset-0 -z-10 bg-[radial-gradient(72%_130%_at_87%_12%,rgba(124,192,245,0.26)_0%,rgba(23,19,62,0)_62%)]"
           />
           <div
             aria-hidden="true"

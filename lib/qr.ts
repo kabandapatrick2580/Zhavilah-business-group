@@ -13,7 +13,7 @@ import QRCode from "qrcode";
  * Colours are fixed dark-on-white regardless of surrounding design. Scanners
  * threshold on luminance and expect a light background with a dark pattern;
  * inverting or tinting one is the usual reason a code looks fine and refuses to
- * scan. The navy is dark enough to keep the contrast a scanner needs while
+ * scan. The indigo is dark enough to keep the contrast a scanner needs while
  * still reading as brand rather than default black.
  */
 export function toQrSvg(value: string): Promise<string> {
@@ -25,6 +25,6 @@ export function toQrSvg(value: string): Promise<string> {
     // The quiet zone the spec requires. Below ~2 modules, scanners start
     // failing against busy backgrounds.
     margin: 2,
-    color: { dark: "#0c1e38", light: "#ffffff" },
+    color: { dark: "#141034", light: "#ffffff" },
   });
 }

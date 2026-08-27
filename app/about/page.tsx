@@ -141,7 +141,7 @@ export default function AboutPage() {
           {/* Portrait source, framed to a consistent 4:5 crop so the column
               heights stay balanced on desktop. */}
           <CurtainReveal
-            className="relative order-2 aspect-[4/5] overflow-hidden rounded-3xl shadow-[0_18px_55px_rgba(11,38,74,0.12)] lg:order-1"
+            className="relative order-2 aspect-[4/5] overflow-hidden rounded-3xl shadow-[0_18px_55px_rgba(25,20,65,0.12)] lg:order-1"
             from="left"
           >
             <Image
@@ -211,7 +211,7 @@ export default function AboutPage() {
             </Link>
           </div>
           <div className="relative">
-            <CurtainReveal className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-[0_18px_55px_rgba(11,38,74,0.12)]">
+            <CurtainReveal className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-[0_18px_55px_rgba(25,20,65,0.12)]">
               <Image
                 src="/assets/img/about/4.jpeg"
                 alt="ZHAVILAH team at work"

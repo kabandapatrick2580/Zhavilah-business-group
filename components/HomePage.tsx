@@ -12,7 +12,7 @@ import { Counter, EASE, Reveal, Stagger, StaggerItem } from "@/components/motion
 
 // `featured` promotes a card to a full-width band across the top of the grid —
 // used for a newly launched service. `image` is optional: without one the card
-// falls back to its navy panel, which is how a service reads before its
+// falls back to its indigo panel, which is how a service reads before its
 // photography has been shot.
 const services: {
   title: string;
@@ -179,7 +179,7 @@ export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }
               </motion.div>
               <a href="tel:+250788221231" className="zbg-call">
                 <motion.span
-                  animate={reduce ? undefined : { boxShadow: ["0 0 0 0 rgba(16,58,107,0.28)", "0 0 0 14px rgba(16,58,107,0)"] }}
+                  animate={reduce ? undefined : { boxShadow: ["0 0 0 0 rgba(37,31,97,0.28)", "0 0 0 14px rgba(37,31,97,0)"] }}
                   transition={{ duration: 2.2, repeat: Infinity, ease: "easeOut" }}
                 >
                   <UsersRound />
@@ -210,7 +210,7 @@ export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2, ease: EASE }}
           >
-            {/* Radar rings — a slow, continuous pulse that keeps the navy
+            {/* Radar rings — a slow, continuous pulse that keeps the indigo
                 panel alive without pulling attention from the copy. */}
             {[0, 0.8].map((delay, i) => (
               <motion.div

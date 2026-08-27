@@ -17,7 +17,7 @@ export default function ContactPage() {
       <section className="bg-brand-haze py-20">
         <div className="mx-auto grid max-w-7xl items-center gap-8 px-6 lg:grid-cols-[1.4fr_1fr]">
           {/* Form */}
-          <div className="rounded-3xl bg-white p-8 shadow-[0_18px_55px_rgba(11,38,74,0.07)] sm:p-12">
+          <div className="rounded-3xl bg-white p-8 shadow-[0_18px_55px_rgba(25,20,65,0.07)] sm:p-12">
             <SectionHeading eyebrow="Start a Conversation" title="Get in Touch Now" />
             <p className="mt-3 text-brand-muted">
               Need personalized advice? Our dedicated team is here to assist you. Reach out today for expert

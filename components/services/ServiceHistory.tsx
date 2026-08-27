@@ -201,7 +201,7 @@ function CardNode({
       viewport={{ once: true, amount: 0.25 }}
       transition={{ duration: reduce ? 0.25 : 0.65, ease: EASE }}
       whileHover={reduce ? undefined : { y: -6 }}
-      className="group relative z-10 rounded-2xl border border-brand-line bg-white p-8 shadow-[0_18px_55px_rgba(11,38,74,0.06)] transition-colors duration-300 hover:border-brand/40"
+      className="group relative z-10 rounded-2xl border border-brand-line bg-white p-8 shadow-[0_18px_55px_rgba(25,20,65,0.06)] transition-colors duration-300 hover:border-brand/40"
     >
       {/* Ports: sides on the two-column layout, bottom-centre when stacked.
           Breakpoint matches the grid (md) so they line up with the traces. */}
@@ -285,7 +285,7 @@ function ImageBlock({ block, index }: { block: HistoryImage; index: number }) {
 
   return (
     <CurtainReveal
-      className="relative h-72 w-full overflow-hidden rounded-2xl shadow-[0_18px_55px_rgba(11,38,74,0.1)]"
+      className="relative h-72 w-full overflow-hidden rounded-2xl shadow-[0_18px_55px_rgba(25,20,65,0.1)]"
       delay={index * 0.05}
     >
       <Image

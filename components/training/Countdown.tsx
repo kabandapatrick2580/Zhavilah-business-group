@@ -15,7 +15,7 @@ const UNITS = ["days", "hours", "minutes", "seconds"] as const;
 
 export default function Countdown({
   target,
-  /** "light" sits on the navy panel; "dark" sits on a white surface. */
+  /** "light" sits on the indigo panel; "dark" sits on a white surface. */
   tone = "light",
   onElapsed,
 }: {

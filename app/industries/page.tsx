@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 // `image` is optional — a service whose photography has not been shot yet
-// falls back to the navy panel below rather than borrowing another service's
+// falls back to the indigo panel below rather than borrowing another service's
 // picture.
 const industries: { title: string; copy: string; href: string; image?: string }[] = [
   {
@@ -113,7 +113,7 @@ export default function IndustriesPage() {
                     <span className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-dark/10 to-brand-dark/95" />
                   </>
                 ) : (
-                  <span className="absolute inset-0 -z-10 bg-[linear-gradient(118deg,#0a2447_0%,#103a6b_56%,#17518f_100%)]" />
+                  <span className="absolute inset-0 -z-10 bg-[linear-gradient(118deg,#17133e_0%,#251f61_56%,#30287e_100%)]" />
                 )}
                 <div className="relative">
                   <h3 className="font-heading text-xl font-extrabold text-white">{item.title}</h3>
@@ -138,7 +138,7 @@ export default function IndustriesPage() {
               <StaggerItem
                 key={title}
                 lift
-                className="rounded-2xl border border-brand-line bg-white p-9 text-center transition-shadow hover:shadow-[0_18px_42px_rgba(16,58,107,0.1)]"
+                className="rounded-2xl border border-brand-line bg-white p-9 text-center transition-shadow hover:shadow-[0_18px_42px_rgba(37,31,97,0.1)]"
               >
                 <span className="mx-auto flex size-14 items-center justify-center rounded-full bg-brand-haze text-brand">
                   <Icon className="size-7" />

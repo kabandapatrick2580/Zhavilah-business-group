@@ -119,7 +119,7 @@ export default async function BlogPostPage({
                   <StaggerItem key={item._id} lift as="article">
                     <Link
                       href={`/blog/${item.slug}`}
-                      className="flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-[0_18px_55px_rgba(11,38,74,0.07)] transition hover:shadow-card"
+                      className="flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-[0_18px_55px_rgba(25,20,65,0.07)] transition hover:shadow-card"
                     >
                       <div className="relative h-40 w-full bg-brand-tint">
                         {cover && (

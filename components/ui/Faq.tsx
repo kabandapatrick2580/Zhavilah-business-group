@@ -22,7 +22,7 @@ export default function Faq({ items }: { items: FaqItem[] }) {
           <StaggerItem
             key={i}
             className={`overflow-hidden rounded-xl border bg-white transition-colors ${
-              isOpen ? "border-brand/40 shadow-[0_12px_30px_rgba(11,38,74,0.08)]" : "border-brand-line"
+              isOpen ? "border-brand/40 shadow-[0_12px_30px_rgba(25,20,65,0.08)]" : "border-brand-line"
             }`}
           >
             <button

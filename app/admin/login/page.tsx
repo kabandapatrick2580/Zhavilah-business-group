@@ -31,7 +31,7 @@ export default async function AdminLoginPage() {
           />
         </Link>
 
-        <div className="rounded-2xl border border-brand-line bg-white p-8 shadow-[0_18px_50px_rgba(11,38,74,0.08)]">
+        <div className="rounded-2xl border border-brand-line bg-white p-8 shadow-[0_18px_50px_rgba(25,20,65,0.08)]">
           <h1 className="font-heading text-2xl font-extrabold text-brand-ink">Training dashboard</h1>
           <p className="mt-1.5 mb-7 text-sm text-brand-muted">
             Sign in to manage the training modules and intakes shown on the website.

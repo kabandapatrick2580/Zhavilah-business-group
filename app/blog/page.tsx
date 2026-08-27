@@ -46,7 +46,7 @@ export default async function BlogIndexPage() {
                   <StaggerItem key={post._id} lift as="article">
                     <Link
                       href={`/blog/${post.slug}`}
-                      className="flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-[0_18px_55px_rgba(11,38,74,0.07)] transition hover:shadow-card"
+                      className="flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-[0_18px_55px_rgba(25,20,65,0.07)] transition hover:shadow-card"
                     >
                       <div className="relative h-56 w-full overflow-hidden bg-brand-tint">
                         {cover && (

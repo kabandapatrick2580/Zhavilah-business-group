@@ -156,7 +156,7 @@ export default function IntakeForm({
           type="checkbox"
           name="published"
           defaultChecked={intake ? intake.published : true}
-          className="mt-0.5 size-4 shrink-0 accent-[#103a6b]"
+          className="mt-0.5 size-4 shrink-0 accent-[#251f61]"
         />
         <span className="text-sm text-brand-ink">
           <span className="font-semibold">{editing ? "Published" : "Publish immediately"}</span>

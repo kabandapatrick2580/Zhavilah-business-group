@@ -87,7 +87,7 @@ export default function CookieConsent() {
             transition={{ type: "spring", stiffness: 220, damping: 26, mass: 0.9 }}
             className="fixed inset-x-0 bottom-0 z-[70] px-3 pb-3 sm:px-5 sm:pb-5"
           >
-            <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-brand-line bg-white/95 shadow-[0_24px_70px_rgba(11,38,74,0.22)] backdrop-blur-xl">
+            <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-brand-line bg-white/95 shadow-[0_24px_70px_rgba(25,20,65,0.22)] backdrop-blur-xl">
               {/* Light-blue top edge — a small brand cue on an otherwise plain surface */}
               <div className="h-1 bg-gradient-to-r from-brand via-accent to-brand-sky" />
 
@@ -192,7 +192,7 @@ export default function CookieConsent() {
                     whileHover={reduce ? undefined : { y: -2 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => save(ACCEPT_ALL)}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(16,58,107,0.28)] transition hover:bg-brand-dark"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(37,31,97,0.28)] transition hover:bg-brand-dark"
                   >
                     <Check className="size-4" /> Accept all
                   </motion.button>
@@ -251,7 +251,7 @@ export default function CookieConsent() {
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
             onClick={() => setOpen(true)}
             aria-label="Cookie settings"
-            className="group fixed bottom-6 left-6 z-[65] flex size-11 items-center justify-center rounded-full border border-brand-line bg-white text-brand shadow-[0_10px_30px_rgba(11,38,74,0.18)]"
+            className="group fixed bottom-6 left-6 z-[65] flex size-11 items-center justify-center rounded-full border border-brand-line bg-white text-brand shadow-[0_10px_30px_rgba(25,20,65,0.18)]"
           >
             <Cookie className="size-5" />
             <span className="pointer-events-none absolute left-14 whitespace-nowrap rounded-full bg-brand-ink px-3 py-1.5 text-xs font-medium text-white opacity-0 transition group-hover:opacity-100">

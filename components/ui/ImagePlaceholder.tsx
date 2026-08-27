@@ -24,7 +24,7 @@ export default function ImagePlaceholder({
   /** Delivery spec — dimensions and format. */
   spec?: string;
   icon?: ServiceIconName;
-  /** `dark` for placement on navy surfaces. */
+  /** `dark` for placement on indigo surfaces. */
   tone?: "light" | "dark";
   className?: string;
 }) {
@@ -41,7 +41,7 @@ export default function ImagePlaceholder({
     >
       <span
         className={`flex size-12 items-center justify-center rounded-xl ${
-          dark ? "bg-white/10 text-brand-sky" : "bg-white text-brand shadow-[0_6px_18px_rgba(11,38,74,0.08)]"
+          dark ? "bg-white/10 text-brand-sky" : "bg-white text-brand shadow-[0_6px_18px_rgba(25,20,65,0.08)]"
         }`}
       >
         <Icon className="size-5" />

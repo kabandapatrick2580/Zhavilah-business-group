@@ -1,6 +1,6 @@
 "use client";
 
-// A thin navy → light-blue bar pinned to the top of the viewport that tracks
+// A thin indigo → light-blue bar pinned to the top of the viewport that tracks
 // how far the page has been read. Scroll-linked rather than time-based, so it
 // costs nothing when the user is idle.
 

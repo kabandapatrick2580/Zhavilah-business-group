@@ -39,9 +39,9 @@ export const metadata: Metadata = {
   },
 };
 
-// Paints the mobile browser chrome in brand navy.
+// Paints the mobile browser chrome in the brand indigo.
 export const viewport: Viewport = {
-  themeColor: "#103a6b",
+  themeColor: "#251f61",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

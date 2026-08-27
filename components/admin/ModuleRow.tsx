@@ -28,7 +28,7 @@ export default function ModuleRow({
 
   if (editing) {
     return (
-      <li className="rounded-xl border border-brand/40 bg-white p-5 shadow-[0_10px_30px_rgba(11,38,74,0.06)]">
+      <li className="rounded-xl border border-brand/40 bg-white p-5 shadow-[0_10px_30px_rgba(25,20,65,0.06)]">
         <p className="mb-5 font-heading text-sm font-extrabold uppercase tracking-[0.12em] text-brand">
           Editing module
         </p>

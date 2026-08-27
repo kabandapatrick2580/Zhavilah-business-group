@@ -181,7 +181,7 @@ export default function QuickBooksSolutionsPage() {
               lock-up, still awaiting its badge asset. */}
           <div className="relative">
             <CurtainReveal
-              className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl shadow-[0_18px_55px_rgba(11,38,74,0.12)]"
+              className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl shadow-[0_18px_55px_rgba(25,20,65,0.12)]"
               from="left"
             >
               <Image
@@ -196,7 +196,7 @@ export default function QuickBooksSolutionsPage() {
 
             <Reveal
               delay={0.45}
-              className="absolute -bottom-6 left-6 right-6 flex items-center gap-4 rounded-2xl bg-white p-5 shadow-[0_18px_55px_rgba(11,38,74,0.14)] sm:right-auto"
+              className="absolute -bottom-6 left-6 right-6 flex items-center gap-4 rounded-2xl bg-white p-5 shadow-[0_18px_55px_rgba(25,20,65,0.14)] sm:right-auto"
             >
               <Image
                 src="/assets/img/service/quickbooks-proadvisor.png"
@@ -229,7 +229,7 @@ export default function QuickBooksSolutionsPage() {
                 as="article"
                 key={text}
                 lift
-                className="group rounded-2xl border border-brand-line bg-white p-8 shadow-[0_12px_35px_rgba(11,38,74,0.06)] transition-colors hover:border-brand/40"
+                className="group rounded-2xl border border-brand-line bg-white p-8 shadow-[0_12px_35px_rgba(25,20,65,0.06)] transition-colors hover:border-brand/40"
               >
                 <span className="mb-5 flex size-12 items-center justify-center rounded-xl bg-brand-tint text-brand transition-colors duration-300 group-hover:bg-brand group-hover:text-white">
                   <Icon className="size-5" />
@@ -258,7 +258,7 @@ export default function QuickBooksSolutionsPage() {
               them — which also gives a portrait crop somewhere to live. */}
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
             <CurtainReveal
-              className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl shadow-[0_18px_55px_rgba(11,38,74,0.12)]"
+              className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl shadow-[0_18px_55px_rgba(25,20,65,0.12)]"
               from="left"
             >
               <Image
@@ -323,7 +323,7 @@ export default function QuickBooksSolutionsPage() {
               alt="Intuit QuickBooks Certified ProAdvisor — Online"
               width={480}
               height={638}
-              className="mx-auto mb-8 h-20 w-auto drop-shadow-[0_10px_30px_rgba(4,20,43,0.45)]"
+              className="mx-auto mb-8 h-20 w-auto drop-shadow-[0_10px_30px_rgba(13,11,36,0.45)]"
             />
             <h2 className="mx-auto max-w-2xl font-heading text-3xl font-extrabold leading-tight sm:text-4xl">
               Ready to take control of your finances?

@@ -5,7 +5,7 @@
 // It is deliberately its own set rather than the marketing site's: this is a
 // tool, not a page, so the type is smaller, the spacing tighter and the
 // controls have visible borders and focus rings. The palette is still the
-// brand's navy so it does not feel like a different product.
+// brand's indigo so it does not feel like a different product.
 
 import { useFormStatus } from "react-dom";
 import { Loader2 } from "lucide-react";
@@ -22,7 +22,7 @@ export function Panel({
   actions?: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-brand-line bg-white shadow-[0_10px_30px_rgba(11,38,74,0.05)]">
+    <section className="rounded-2xl border border-brand-line bg-white shadow-[0_10px_30px_rgba(25,20,65,0.05)]">
       <header className="flex flex-wrap items-start justify-between gap-3 border-b border-brand-line px-6 py-5">
         <div>
           <h2 className="font-heading text-lg font-extrabold text-brand-ink">{title}</h2>
