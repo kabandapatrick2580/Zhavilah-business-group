@@ -184,8 +184,8 @@ move the store, which is what Blob does.
 
 ### Setting it up
 
-1. Vercel dashboard → **Storage** → **Blob** → create a store → **Connect** it
-   to this project.
+1. Vercel dashboard → **Storage** → **Blob** → create a store — **private**,
+   which is what the code asks for — → **Connect** it to this project.
 2. Redeploy. Vercel injects `BLOB_READ_WRITE_TOKEN` automatically; you never
    set it by hand.
 
@@ -203,6 +203,7 @@ again", because for most of these a retry fails identically for ever:
 | --- | --- | --- |
 | rejected this deployment's token | Token is stale, hand-set, or belongs to another project's store | Reconnect the store to **this** project, redeploy. Never set the variable by hand |
 | store … no longer exists | Token points at a deleted store | Create a store, connect, redeploy |
+| Cannot use public access on a private store | Store's access mode and the `access` option disagree | Make `access` in `lib/training/store.ts` match how the store was created |
 | store has been suspended | Billing or usage limit | Vercel dashboard → Storage |
 | …not available / Too many requests | Vercel-side outage or throttling | Genuinely retry |
 | anything else | Passed through from the SDK verbatim | Read what it says |
@@ -226,11 +227,18 @@ storage, so a save is visible on the very next render. Without it the dashboard
 would look broken for up to a minute after every edit — precisely the window in
 which someone checks whether their change worked.
 
-**The blob is public.** It holds the same marketing copy `/training` already
-publishes: module titles, dates, a fee, a link to a form. Nothing in it is not
-already on a public page. **Nothing with a person in it may ever be stored
+**The blob is private**, and the store must be created that way. Vercel Blob
+stores are configured public or private at creation, and the `access` option on
+every `get`/`put` has to agree with that — a mismatch fails every write with
+*"Cannot use public access on a private store"*. Nothing outside
+`lib/training/store.ts` needs the blob's URL, so private costs nothing here:
+reads fetch it by pathname with the store token.
+
+It holds only the marketing copy `/training` already publishes — module titles,
+dates, a fee, a link to a form — so private access is defence in depth rather
+than a secret being kept. **Nothing with a person in it may ever be stored
 here** — that line is the same one `TRAINING-SYSTEM.md` §2 draws around Sanity,
-and it applies identically.
+and it applies identically, private store or not.
 
 ### If you ever move off Vercel
 

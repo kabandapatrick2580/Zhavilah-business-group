@@ -82,7 +82,7 @@ async function readFromBlob(): Promise<TrainingData | null> {
     // it a save would not be visible until the edge TTL expired, which would
     // make the dashboard look broken for a minute after every edit — exactly
     // the window in which someone checks whether their change worked.
-    const result = await get(BLOB_PATH, { access: "public", useCache: false });
+    const result = await get(BLOB_PATH, { access: "private", useCache: false });
 
     // `get` resolves to null when the blob does not exist. 304 cannot happen
     // here because no ifNoneMatch is sent, but the type allows it.
@@ -100,17 +100,22 @@ async function readFromBlob(): Promise<TrainingData | null> {
 async function writeToBlob(data: TrainingData): Promise<WriteResult> {
   try {
     await put(BLOB_PATH, `${JSON.stringify(data, null, 2)}\n`, {
-      // The catalogue is the same marketing copy /training already publishes —
-      // module titles, dates, a fee, a link to a form. There is nothing here
-      // that is not already on a public page, which is why public access is
-      // fine. Nothing with a person in it may ever be stored here.
-      access: "public",
+      // Private, which is both what the connected store is configured for and
+      // the right default: nothing outside this module ever needs the blob's
+      // URL. `readFromBlob` fetches it by pathname with the store token, so
+      // there is no reader that a public URL would serve.
+      //
+      // The contents are only the marketing copy /training already publishes —
+      // module titles, dates, a fee, a link to a form. Nothing with a person in
+      // it may ever be stored here; private access does not change that rule,
+      // it only removes the second copy of public data from the open web.
+      access: "private",
       contentType: "application/json",
       // Overwrite one stable path rather than accumulating versioned blobs.
       addRandomSuffix: false,
       allowOverwrite: true,
-      // Reads bypass the CDN anyway; this only bounds how long a direct hit on
-      // the blob URL could be stale.
+      // Reads pass `useCache: false` anyway; this only bounds how long an
+      // authorised direct fetch of the blob URL could be stale.
       cacheControlMaxAge: 60,
     });
     return { ok: true };
@@ -149,6 +154,15 @@ function blobFailureMessage(error: unknown): string {
       return (
         "The Blob store this deployment points at no longer exists. Create one under " +
         "Storage → Blob, connect it to this project, and redeploy."
+      );
+    }
+    // Store access mode and the `access` option here must agree; they are set
+    // in two different places, so the mismatch is easy to create and the SDK's
+    // own wording does not say which of the two to change.
+    if (detail.includes("private store") || detail.includes("public store")) {
+      return (
+        `Blob storage refused the write: ${detail} The \`access\` option in ` +
+        "lib/training/store.ts must match how the store was created in the Vercel dashboard."
       );
     }
     if (detail.includes("suspended")) {
