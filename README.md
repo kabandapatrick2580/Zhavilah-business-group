@@ -93,7 +93,7 @@ architecture, the environment variables required, and what has been verified.
 
 `/admin` is an admin area for the training catalogue: the syllabus modules shown
 on `/training`, and the dated intakes people apply to. Both can be added, edited
-inline, and removed. It signs in with three
+inline, and removed. It signs in with three 
 environment variables (`ADMIN_USERNAME`, `ADMIN_PASSWORD`,
 `ADMIN_SESSION_SECRET`) and stores everything in `data/training.json`, which
 `/training` reads.
