@@ -28,7 +28,7 @@ import "server-only";
 
 import { readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { get, put } from "@vercel/blob";
+import { BlobError, get, put } from "@vercel/blob";
 import { parseTrainingData, type TrainingData } from "@/lib/training/types";
 
 // Resolved from the working directory, which Next sets to the project root in
@@ -116,14 +116,57 @@ async function writeToBlob(data: TrainingData): Promise<WriteResult> {
     return { ok: true };
   } catch (error) {
     console.error("[training] could not write the blob:", error);
-    return {
-      ok: false,
-      reason: "failed",
-      message:
-        "The change could not be saved to Blob storage. Please try again — if it keeps happening, " +
-        "check that the Blob store is still connected to this project.",
-    };
+    return { ok: false, reason: "failed", message: blobFailureMessage(error) };
   }
+}
+
+/**
+ * Turns a Blob failure into a message that names the fix.
+ *
+ * "Please try again" is the wrong advice for most of these: a token pointing at
+ * a store that was deleted, or one left over from another project, fails
+ * identically on every retry. The SDK raises a distinct error per cause, so the
+ * causes with distinct fixes get distinct messages and only the genuinely
+ * transient ones ask for a retry.
+ *
+ * Showing the underlying message is safe. This is behind the admin login, and
+ * no Blob error carries the token or any part of it — they are fixed strings
+ * prefixed "Vercel Blob:".
+ */
+function blobFailureMessage(error: unknown): string {
+  const detail = error instanceof BlobError ? error.message : null;
+
+  if (detail) {
+    // Wrong, stale, or foreign token — the usual outcome of connecting a store
+    // to a different project, or of a hand-set BLOB_READ_WRITE_TOKEN.
+    if (detail.includes("Access denied")) {
+      return (
+        "Blob storage rejected this deployment's token. Reconnect the Blob store to this project " +
+        "in the Vercel dashboard and redeploy — do not set BLOB_READ_WRITE_TOKEN by hand."
+      );
+    }
+    if (detail.includes("This store does not exist")) {
+      return (
+        "The Blob store this deployment points at no longer exists. Create one under " +
+        "Storage → Blob, connect it to this project, and redeploy."
+      );
+    }
+    if (detail.includes("suspended")) {
+      return "The Blob store has been suspended. Check billing and usage limits in the Vercel dashboard.";
+    }
+    // Vercel's own outage or throttling: retrying really is the fix.
+    if (detail.includes("not available") || detail.includes("Too many requests")) {
+      return `${detail} Nothing was saved — try again in a moment.`;
+    }
+    return `The change could not be saved to Blob storage. ${detail}`;
+  }
+
+  // Not a BlobError at all — a network failure reaching the API, most likely.
+  return (
+    "The change could not be saved to Blob storage, and the failure did not come from Blob itself " +
+    "(a network problem reaching the API, most likely). Check the deployment's runtime logs for " +
+    "\"[training] could not write the blob\"."
+  );
 }
 
 // ---------------------------------------------------------------------------

@@ -192,6 +192,25 @@ move the store, which is what Blob does.
 Nothing else changes — the dashboard, the seven server actions, `/training`,
 the countdown and the JSON shape are all untouched.
 
+### If a save fails once the token is set
+
+With `BLOB_READ_WRITE_TOKEN` present the file backend is out of the picture, so
+a failure is Blob refusing the write. `blobFailureMessage` in
+`lib/training/store.ts` names the cause on screen rather than saying "try
+again", because for most of these a retry fails identically for ever:
+
+| What the dashboard says | Cause | Fix |
+| --- | --- | --- |
+| rejected this deployment's token | Token is stale, hand-set, or belongs to another project's store | Reconnect the store to **this** project, redeploy. Never set the variable by hand |
+| store … no longer exists | Token points at a deleted store | Create a store, connect, redeploy |
+| store has been suspended | Billing or usage limit | Vercel dashboard → Storage |
+| …not available / Too many requests | Vercel-side outage or throttling | Genuinely retry |
+| anything else | Passed through from the SDK verbatim | Read what it says |
+
+The full error is also logged as `[training] could not write the blob:` in the
+deployment's runtime logs, which is the faster route when the message is not
+enough — it carries the stack and the HTTP status the message drops.
+
 ### Three things to know
 
 **The committed file is the seed, not the source of truth.** On a deployment
