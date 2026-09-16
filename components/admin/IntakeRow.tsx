@@ -33,6 +33,16 @@ export default function IntakeRow({ intake, phase }: { intake: TrainingIntake; p
 
   const badge = PHASE_LABEL[phase];
 
+  const payment = [
+    { label: "Pay to", value: intake.payment.companyName },
+    { label: "Reason", value: intake.payment.reason },
+    {
+      label: intake.payment.bankName ? `${intake.payment.bankName} account` : "Bank account",
+      value: intake.payment.bankAccount,
+    },
+    { label: "MoMo code", value: intake.payment.momoCode },
+  ].filter((row) => row.value);
+
   return (
     <li className="rounded-xl border border-brand-line bg-brand-haze/50 p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -60,6 +70,17 @@ export default function IntakeRow({ intake, phase }: { intake: TrainingIntake; p
             {intake.fee ? <Row label="Fee" value={intake.fee} /> : null}
             {intake.seats ? <Row label="Seats" value={String(intake.seats)} /> : null}
           </dl>
+
+          {/* Repeated here rather than left to the edit form: these are the
+              numbers applicants pay into, so a wrong digit should be visible
+              without opening anything. */}
+          {payment.length > 0 ? (
+            <dl className="mt-3 grid gap-x-8 gap-y-1 border-t border-brand-line pt-3 text-sm sm:grid-cols-2">
+              {payment.map(({ label, value }) => (
+                <Row key={label} label={label} value={value} />
+              ))}
+            </dl>
+          ) : null}
 
           <a
             href={intake.applicationUrl}

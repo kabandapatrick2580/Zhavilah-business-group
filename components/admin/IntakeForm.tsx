@@ -8,7 +8,7 @@ import { CalendarPlus, Check } from "lucide-react";
 import { createIntakeAction, updateIntakeAction } from "@/app/admin/actions";
 import { Feedback, Field, SubmitButton, TextArea, TextInput } from "@/components/admin/ui";
 import { isoToLocalInput } from "@/lib/training/dates";
-import type { TrainingIntake } from "@/lib/training/types";
+import { PAYMENT_DEFAULTS, type TrainingIntake } from "@/lib/training/types";
 
 export default function IntakeForm({
   intake,
@@ -31,6 +31,10 @@ export default function IntakeForm({
 
   // Namespaced so several forms can be open on the page without colliding ids.
   const key = intake?.id ?? "new";
+
+  // A new intake opens on the company's standing details; an existing one on
+  // what it was saved with, which `parseTrainingData` has already defaulted.
+  const payment = intake?.payment ?? PAYMENT_DEFAULTS;
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
@@ -134,6 +138,66 @@ export default function IntakeForm({
           />
         </Field>
       </div>
+
+      {/* Preloaded with the company's standing details on a new intake, and
+          with whatever was saved on an existing one, so the admin only touches
+          them when an account actually changes. */}
+      <fieldset className="rounded-lg border border-brand-line bg-brand-haze/60 p-4">
+        <legend className="px-1.5 text-sm font-semibold text-brand-ink">Payment details</legend>
+        <p className="text-xs leading-relaxed text-brand-muted">
+          Shown on the training page so applicants know where the fee is paid. Clear a field to leave it off
+          that intake.
+        </p>
+
+        <div className="mt-4 grid gap-5 sm:grid-cols-2">
+          <Field label="Company name" htmlFor={`${key}-companyName`}>
+            <TextInput
+              id={`${key}-companyName`}
+              name="companyName"
+              maxLength={160}
+              defaultValue={seed("companyName", payment.companyName)}
+            />
+          </Field>
+
+          <Field label="Reason" htmlFor={`${key}-paymentReason`}>
+            <TextInput
+              id={`${key}-paymentReason`}
+              name="paymentReason"
+              maxLength={160}
+              defaultValue={seed("paymentReason", payment.reason)}
+            />
+          </Field>
+
+          <Field label="Bank" htmlFor={`${key}-bankName`}>
+            <TextInput
+              id={`${key}-bankName`}
+              name="bankName"
+              maxLength={80}
+              defaultValue={seed("bankName", payment.bankName)}
+            />
+          </Field>
+
+          <Field label="Bank account" htmlFor={`${key}-bankAccount`}>
+            <TextInput
+              id={`${key}-bankAccount`}
+              name="bankAccount"
+              inputMode="numeric"
+              maxLength={40}
+              defaultValue={seed("bankAccount", payment.bankAccount)}
+            />
+          </Field>
+
+          <Field label="MoMo code" htmlFor={`${key}-momoCode`}>
+            <TextInput
+              id={`${key}-momoCode`}
+              name="momoCode"
+              inputMode="numeric"
+              maxLength={40}
+              defaultValue={seed("momoCode", payment.momoCode)}
+            />
+          </Field>
+        </div>
+      </fieldset>
 
       <Field
         label="Application link"

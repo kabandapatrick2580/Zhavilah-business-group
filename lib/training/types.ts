@@ -20,6 +20,32 @@ export type TrainingModule = {
 };
 
 /**
+ * Where the training fee is paid.
+ *
+ * These are the company's standing details rather than something that varies
+ * per intake, so every field is preloaded from `PAYMENT_DEFAULTS` and only
+ * carries a stored value once an admin has actually edited it. Each one is a
+ * plain string that may be empty: an admin who clears the MoMo code means the
+ * intake has no MoMo code, which is why blank is kept rather than refilled.
+ */
+export type IntakePayment = {
+  companyName: string;
+  reason: string;
+  bankName: string;
+  bankAccount: string;
+  momoCode: string;
+};
+
+/** What the create form opens with, and what an older record falls back to. */
+export const PAYMENT_DEFAULTS: IntakePayment = {
+  companyName: "ZHAVILAH BUSINESS GROUP LTD",
+  reason: "Training Fee",
+  bankName: "Equity",
+  bankAccount: "4003201102265",
+  momoCode: "221231",
+};
+
+/**
  * A dated run of the training that applicants can register for.
  *
  * Three dates, all optional except `opensAt`, and they drive the countdown:
@@ -44,6 +70,8 @@ export type TrainingIntake = {
   seats?: number;
   /** Third-party application form (Google Forms and the like). Opened in a new tab. */
   applicationUrl: string;
+  /** How the fee is paid. Always present — see `IntakePayment`. */
+  payment: IntakePayment;
   /** Unpublished intakes are visible in the dashboard only. */
   published: boolean;
   createdAt: string;
@@ -117,9 +145,31 @@ function parseIntake(value: unknown): TrainingIntake | null {
     ...(str(value.location) ? { location: str(value.location) } : {}),
     ...(str(value.fee) ? { fee: str(value.fee) } : {}),
     ...(seats ? { seats } : {}),
+    payment: parsePayment(value.payment),
     applicationUrl,
     published: value.published !== false,
     createdAt: isoOrEmpty(value.createdAt) || new Date(0).toISOString(),
+  };
+}
+
+/**
+ * Fills in the company's details for anything the record does not carry.
+ *
+ * A key that is present — even as an empty string — is an admin's decision and
+ * is kept as it is. A key that is missing predates the payment fields, so it
+ * takes the default.
+ */
+function parsePayment(value: unknown): IntakePayment {
+  const record = isRecord(value) ? value : {};
+  const field = (key: keyof IntakePayment): string =>
+    key in record ? str(record[key]) : PAYMENT_DEFAULTS[key];
+
+  return {
+    companyName: field("companyName"),
+    reason: field("reason"),
+    bankName: field("bankName"),
+    bankAccount: field("bankAccount"),
+    momoCode: field("momoCode"),
   };
 }
 

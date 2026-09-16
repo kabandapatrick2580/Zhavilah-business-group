@@ -4,23 +4,25 @@ Reference document and running checklist for delivering §2.2 (Content Managemen
 System) of the Software Development Freelance Agreement, plus the remaining
 open items from §2.1, §2.4 and §2.5.
 
-**Last updated:** 2026-08-14
+**Last updated:** 2026-09-11
 
 ---
 
 ## Current status — start here
 
-**Phase 1 is code-complete apart from webhook revalidation. Nothing is deployed,
-and the work is not yet committed.**
+**Phase 1 is code-complete apart from webhook revalidation, and none of it is
+deployed — no Sanity project exists to deploy it against. The training
+catalogue, which took a different route, is committed and live.**
 
 | | State |
 | --- | --- |
 | Phase 0 (Sanity project) | **Not started — blocks everything below** |
 | Phase 1 (blog, banners, gallery) | Built and verified locally |
 | Phase 2 (services, training, pages) | Not started; needs scope sign-off first |
+| Training intakes/modules | **Live on a separate custom dashboard** — see the split-brain note below |
 | Phase 3 (SEO, security, backups, handover) | Not started |
 | Production site | Still serving the previous build |
-| Git | Changes uncommitted, on `main` |
+| Git | Clean on `main` as of 2026-09-11 |
 | Contact & subscribe forms | Rebuilt 2026-08-14; blocked on its own account setup — see `CONTACT-FORM.md` |
 
 ### The blocker
@@ -29,6 +31,20 @@ Every CMS-driven surface currently renders its **code fallback**, because no
 Sanity project exists yet. The site is fully intact and the blog is built, but
 nothing can be demonstrated as *actually CMS-driven* until Phase 0 is done — and
 Phase 0 needs the Client, since the account must be created in their name.
+
+### The split brain — read with the blocker above
+
+While Phase 0 stayed blocked, the training catalogue was built and **deployed**
+on a different stack entirely: a JSON document in Vercel Blob
+(`lib/training/store.ts`) behind a custom admin at `/admin`, with its own
+session auth (`lib/admin/auth.ts`) and server-action CRUD (`app/admin/actions.ts`).
+It works and it is in production.
+
+That leaves the site with **two content systems and two logins** for the same
+two non-technical editors — the worst of both options, and the state the project
+drifts into by default. §2.5 (training the Client's staff) and §9 (handover)
+both get harder the longer it stands. Resolving it is now a Phase 2 item; the
+decision is recorded in §1 below.
 
 ### Next action
 
@@ -103,10 +119,91 @@ public by design, so the practical exposure is limited to work-in-progress.
 | Option | Why not |
 | --- | --- |
 | **Payload 3 + Postgres** | Strong fit, and the right answer *if* tiered roles were required (roles are free, unlimited TypeScript access-control functions). Rejected here because it wraps `next.config.js`, claims a route group in `app/`, and adds Postgres + object storage — three free tiers to monitor during the warranty month — for a benefit no longer needed. |
+| **Vercel Blob + the existing custom admin** | Reconsidered in depth on 2026-09-11, after the training dashboard proved the pattern in production. Rejected for editorial content — see the review below. |
 | **Prisma + custom admin** | Prisma is an ORM, not a CMS. Choosing it means hand-building auth, CRUD UI, media pipeline, rich-text editing and sanitisation, and backups: ~12–16 days against a RWF 290,000 line item. Revisit only if this becomes a reusable product sold to multiple clients — §9 expressly preserves the right to reuse such tooling. |
 | **Keystone 6** | The Prisma-native CMS, if the Prisma route is ever taken. Needs a persistent Node host (not Vercel serverless) and its development pace has slowed. |
 | **Keystatic** | Genuinely $0 with git-as-backup, but client-facing use requires editors to hold GitHub accounts, and it has no meaningful role model. Poor fit for non-technical staff. |
 | **WordPress headless** | Second runtime, PHP hosting cost, largest security-maintenance surface. Conflicts directly with §2.4 and §11 obligations. |
+
+### Reconsidered 2026-09-11 — could Vercel Blob replace Sanity?
+
+Prompted by the training catalogue working well on Blob: if that pattern already
+runs in production, why keep a third party at all?
+
+**Verdict: keep Sanity for editorial content. Consolidate training into it.**
+
+The honest case *for* going Blob-native is real and worth recording, because it
+is the case that will be made again:
+
+- It deletes Phase 0. No account in anyone's name, no dependency on the Client's
+  calendar — which has held this milestone since 2026-08-14.
+- It deletes the webhook, the last open Phase 1 item. Writes happen in-process,
+  so revalidation is a `revalidatePath()` call in the same server action.
+- It deletes the two caveats above: the $15/seat Growth cliff, and the
+  unverified question of how drafts behave on a public-read Free dataset.
+- Data sits in the Client's own Vercel project. No vendor pricing risk.
+- Most of the machinery already exists: session auth, the dashboard shell, the
+  server-action CRUD pattern, and a store abstraction whose own header notes
+  that swapping backends means reimplementing two functions.
+
+The 12–16 day estimate against "Prisma + custom admin" above is therefore
+**stale** — roughly half that list is now written and deployed.
+
+It was rejected anyway, on two counts that the training catalogue does not
+exercise:
+
+1. **Rich text.** Portable Text is a structured document model, so
+   `components/blog/PortableBody.tsx` renders it with no sanitisation step —
+   there is no untrusted HTML in the pipeline. Replacing it means selecting an
+   editor (Tiptap/Lexical), choosing a storage format, and owning XSS
+   sanitisation on output. That is the highest-risk component in any custom CMS,
+   and under §11 every defect in it is the Freelancer's to fix, indefinitely in
+   practice. Sanity patches its own editor without us.
+2. **The image pipeline.** Blob plus Next `<Image>` gives resize and format
+   conversion. It does not give hotspot/crop — an editor marking the focal point
+   of a photo so it survives every aspect ratio. On a site whose banners and
+   gallery are the visual content, that is not a nicety.
+
+Everything else in §2.2 — banners, services, gallery metadata, site settings,
+page copy, training — is short structured fields, which the Blob pattern handles
+as well as Sanity does. The decision turns on the blog alone.
+
+**The condition that would flip this:** if the blog is dropped, or the Client
+accepts Markdown instead of a WYSIWYG editor, Blob becomes the cheaper answer
+over the life of the contract and Sanity should go. That is a §7 Change Request,
+not a technical call.
+
+**Monthly cost is not the deciding factor and should not be presented as one.**
+Sanity Free covers this volume indefinitely; Blob at under 1 GB is small on a
+project already paying for Vercel. The real cost is build days plus warranty
+support, both denominated in the Freelancer's time.
+
+**Rebuilding Phase 1 is a cost, not a saving.** Blog, banners and gallery are
+code-complete and verified; all eight document types are modelled in
+`studio/schemaTypes/`. Going Blob-native discards finished work to arrive back
+where the project already is, then adds the rich-text and media build on top.
+
+#### Gotchas found while evaluating (keep — they apply to the Blob store regardless)
+
+These were verified against `lib/training/store.ts` and `@vercel/blob` v2.8, and
+remain live issues for the training catalogue even though the CMS stays on Sanity:
+
+- **Concurrent edits silently lose data.** The store does a whole-document
+  read-modify-write, so with two editors the last save wins and the other's
+  change vanishes with no error. The SDK supports compare-and-swap — `get`
+  returns an `etag`, `put` accepts `ifMatch` and throws
+  `BlobPreconditionFailedError` on a mismatch. Roughly ten lines to fix. **Worth
+  doing whether or not training migrates.**
+- **Every public render hits the Blob API.** `readFromBlob` passes
+  `useCache: false`, which is right for the dashboard and wrong for `/training`.
+  Wrap the read in `unstable_cache` and revalidate on write.
+- **The store is private.** `access: "private"` in the store, and the SDK
+  rejects a mismatch against how the store was created. Any media served to the
+  public would need a second, public store — a detail that would have surfaced
+  late in a Blob-native build.
+- **4.5 MB server-action body cap on Vercel** would reject a photo straight off
+  a phone. Client-side `upload()` against a `handleUpload` route is the
+  supported path.
 
 ---
 
@@ -208,12 +305,18 @@ a §2.6 maintenance item, or schedule the Next 16 upgrade as a §7 Change Reques
 §2.2 requires administrators to manage: website pages, services, training
 programs, blog posts, gallery, homepage banners.
 
+"Training programs" splits in two: `trainingModule` is the syllabus, which
+changes rarely, and `intake` is one scheduled run of it that applicants register
+for. Only the intake carries behaviour — `/training` leads with the soonest
+published intake that has not closed, and counts down to it.
+
 | Document | §2.2 item | Replaces (current hardcoded source) |
 | --- | --- | --- |
 | `siteSettings` (singleton) | — | `CONTACT`, `SOCIALS` in `lib/site.ts` |
 | `banner` | Homepage banners | Hero block in `components/HomePage.tsx` |
 | `service` | Services | `SERVICES` in `lib/site.ts` + 8 service page bodies |
 | `trainingModule` | Training programs | `modules` in `app/training/page.tsx` |
+| `intake` | Training programs (dated runs) | `intakes` in the Blob store, edited at `/admin` |
 | `post` | Blog posts | **New — no blog exists today** |
 | `galleryImage` | Gallery | `images` in `app/gallery/page.tsx` |
 | `page` | Website pages | About / Company History / Industries body copy |
@@ -254,7 +357,7 @@ Target: a working system to present for review under §5.
 
 - [x] Install dependencies.
 - [x] Sanity client, image builder, GROQ queries, result types.
-- [x] Schemas for all seven documents.
+- [x] Schemas for all eight documents.
 - [x] Studio configuration (`sanity.config.ts`, `sanity.cli.ts`).
 - [x] Blog index at `/blog`.
 - [x] Blog detail at `/blog/[slug]`.
@@ -270,13 +373,35 @@ already appear within a minute with no redeploy. A Sanity webhook pointed at a
 revalidation route would make that instant; it is a refinement, not a blocker
 for the review.
 
-### Phase 2 — content migration
+### Phase 2 — content migration and consolidation
 
+Ordered. Everything here is **gated on Phase 0**: training currently works in
+production on the Blob store, and nothing may be removed before the Sanity
+project it moves to actually exists.
+
+- [ ] Confirm the §3 scope boundary above is signed off before starting.
 - [ ] Migrate the 8 services into `service` documents.
-- [ ] Migrate training modules into `trainingModule` documents.
 - [ ] Migrate About / Company History / Industries copy into `page` documents.
 - [ ] Move contact details and socials into `siteSettings`.
-- [ ] Confirm the §3 scope boundary above is signed off before starting.
+
+Resolving the split brain (§1, 2026-09-11):
+
+- [x] Model `intake` in the Studio — `studio/schemaTypes/intake.ts`, registered
+      in the schema index and the sidebar. Typechecks; **not yet deployed or
+      read by the site.**
+- [ ] Migrate the live catalogue: export the Blob JSON, create the matching
+      `trainingModule` and `intake` documents.
+- [ ] Point `/training` at GROQ instead of `readTraining()`; keep
+      `lib/training/dates.ts` and `lib/training/select.ts` unchanged — the phase
+      and countdown logic is independent of where the data is stored.
+- [ ] Verify the countdown against a real intake in each of the three phases
+      before removing anything.
+- [ ] Retire `/admin`, `lib/training/store.ts` and `data/training.json`, and
+      drop the Blob store. **Last step, not the first.**
+- [ ] Re-train both editors on the single Studio login (§2.5).
+
+Until that migration runs, the two `ifMatch` and caching fixes listed in §1
+apply to the live Blob store and should not wait on it.
 
 ### Phase 3 — unlocks the final 20% (RWF 130,000)
 

@@ -85,7 +85,7 @@ see §6.
 ```json
 {
   "modules": [ { "id": "...", "title": "...", "icon": "book", "items": ["..."] } ],
-  "intakes": [ { "id": "...", "opensAt": "...", "applicationUrl": "https://…", "published": true } ]
+  "intakes": [ { "id": "...", "opensAt": "...", "applicationUrl": "https://…", "payment": { "companyName": "…", "momoCode": "…" }, "published": true } ]
 }
 ```
 
@@ -111,6 +111,28 @@ fixed offset in `lib/training/dates.ts` is exact rather than an approximation.
 This is what makes `<input type="datetime-local">` safe: that control submits a
 wall-clock string with no zone attached, which would otherwise mean different
 instants on a laptop in Kigali and a server in Virginia.
+
+### Payment details
+
+Every intake carries the account the fee is paid into — company name, reason,
+bank, bank account and MoMo code — and `/training` shows them under the
+countdown panel.
+
+They are the company's standing details rather than something the office
+retypes per intake, so the create form opens preloaded from `PAYMENT_DEFAULTS`
+in `lib/training/types.ts`, and the edit form opens on whatever that intake was
+saved with. Nothing is written until an admin actually submits the form, which
+is what makes an edit to one intake local to that intake.
+
+A record saved before these fields existed has no `payment` key at all, so
+`parseTrainingData` fills the whole block from the defaults. A field the admin
+deliberately *cleared* is stored as an empty string, which is kept as it is and
+simply dropped from the page — that distinction between "missing" and "blank"
+is the reason the defaults are applied per field rather than to the object.
+
+Changing the standing account means editing `PAYMENT_DEFAULTS` (which changes
+what the next new intake opens with) and editing the intakes already saved with
+the old number.
 
 ---
 

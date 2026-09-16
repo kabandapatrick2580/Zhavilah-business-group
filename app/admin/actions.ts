@@ -51,6 +51,7 @@ const MODULE_FIELDS = ["title", "icon", "summary", "items"] as const;
 const INTAKE_FIELDS = [
   "title", "summary", "opensAt", "closesAt", "startsAt",
   "mode", "location", "fee", "seats", "applicationUrl",
+  "companyName", "paymentReason", "bankName", "bankAccount", "momoCode",
 ] as const;
 
 // Five attempts per fifteen minutes. The limiter is per-instance and the
@@ -259,6 +260,16 @@ function readIntakeFields(formData: FormData): { error: string } | { fields: Int
       ...optional(formData, "location"),
       ...optional(formData, "fee"),
       ...(seatsRaw ? { seats: Math.floor(seatsNumber) } : {}),
+      // Stored as submitted, blanks included: the form arrives preloaded with
+      // the company's details, so an empty field is an admin clearing it
+      // rather than a record that never had one.
+      payment: {
+        companyName: text(formData, "companyName"),
+        reason: text(formData, "paymentReason"),
+        bankName: text(formData, "bankName"),
+        bankAccount: text(formData, "bankAccount"),
+        momoCode: text(formData, "momoCode"),
+      },
       applicationUrl,
       published: formData.get("published") !== null,
     },

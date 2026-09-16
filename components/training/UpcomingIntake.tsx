@@ -13,10 +13,12 @@
 // then re-derived in the browser whenever a countdown reaches zero.
 
 import { useCallback, useState } from "react";
-import { ArrowUpRight, Banknote, CalendarDays, Clock, MapPin, Users } from "lucide-react";
+import { ArrowUpRight, Banknote, Building2, CalendarDays, Clock, Landmark, MapPin, Receipt, Smartphone, Users } from "lucide-react";
 import Countdown from "@/components/training/Countdown";
 import { countdownTarget, formatIntakeDate, formatIntakeDateTime, intakePhase, type IntakePhase } from "@/lib/training/dates";
 import type { TrainingIntake } from "@/lib/training/types";
+
+type Detail = { icon: React.ElementType; label: string; value: string };
 
 export default function UpcomingIntake({
   intake,
@@ -44,7 +46,20 @@ export default function UpcomingIntake({
     intake.location ? { icon: MapPin, label: "Location", value: intake.location } : null,
     intake.fee ? { icon: Banknote, label: "Fee", value: intake.fee } : null,
     intake.seats ? { icon: Users, label: "Seats", value: `${intake.seats} places` } : null,
-  ].filter(Boolean) as { icon: React.ElementType; label: string; value: string }[];
+  ].filter(Boolean) as Detail[];
+
+  // Each line is dropped when blank, so an intake the office cleared the MoMo
+  // code from simply shows the bank, and one cleared entirely shows no panel.
+  const payment = [
+    { icon: Building2, label: "Company name", value: intake.payment.companyName },
+    { icon: Receipt, label: "Reason", value: intake.payment.reason },
+    {
+      icon: Landmark,
+      label: intake.payment.bankName ? `${intake.payment.bankName} account` : "Bank account",
+      value: intake.payment.bankAccount,
+    },
+    { icon: Smartphone, label: "MoMo code", value: intake.payment.momoCode },
+  ].filter((row) => row.value) as Detail[];
 
   return (
     <section className="bg-white pt-16 pb-4">
@@ -147,6 +162,36 @@ export default function UpcomingIntake({
               )}
             </div>
           </div>
+
+          {/* Kept out of the details list above and given its own block: an
+              account number is copied down rather than skimmed, so it needs the
+              room and the larger type. */}
+          {payment.length > 0 ? (
+            <div className="mt-10 rounded-2xl border border-white/15 bg-white/[0.06] p-6 sm:p-7">
+              <p className="flex items-center gap-2.5 text-xs font-extrabold uppercase tracking-[0.14em] text-brand-sky">
+                <Banknote className="size-4" />
+                Payment details
+              </p>
+
+              <dl className="mt-5 grid gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+                {payment.map(({ icon: Icon, label, value }) => (
+                  <div key={label} className="flex items-start gap-3">
+                    <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/10 text-brand-sky">
+                      <Icon className="size-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <dt className="text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">
+                        {label}
+                      </dt>
+                      {/* `break-words` so a long account number wraps inside
+                          its column instead of widening the panel on a phone. */}
+                      <dd className="mt-0.5 break-words text-sm font-semibold tabular-nums">{value}</dd>
+                    </div>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          ) : null}
         </article>
       </div>
     </section>
