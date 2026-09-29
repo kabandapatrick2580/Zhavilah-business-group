@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -30,13 +30,31 @@ export default function Header() {
   const [condensed, setCondensed] = useState(false);
 
   // Tightens the bar once the page has scrolled past the hero's first fold.
+  // The gap between the two thresholds stops the bar's own height change from
+  // nudging the scroll position back across a single cut-off and flickering.
   const { scrollY } = useScroll();
-  useMotionValueEvent(scrollY, "change", (latest) => setCondensed(latest > 40));
+  useMotionValueEvent(scrollY, "change", (latest) =>
+    setCondensed((was) => (was ? latest > 20 : latest > 80)),
+  );
+
+  // The header is sticky with a negative `top` equal to the top bar's height,
+  // so the contact strip scrolls away and the main bar pins to the viewport.
+  const topBarRef = useRef<HTMLDivElement>(null);
+  const [topBarHeight, setTopBarHeight] = useState(0);
+  useEffect(() => {
+    const el = topBarRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(() => setTopBarHeight(el.offsetHeight));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <header className="zbg-site-header relative z-40">
+    // The whole header is sticky: a sticky child only sticks within its
+    // parent, so the main bar alone would scroll away with the header.
+    <header className="zbg-site-header sticky z-40" style={{ top: -topBarHeight }}>
       {/* Top bar */}
-      <div className="zbg-header-top hidden bg-primary text-white/90 md:block">
+      <div ref={topBarRef} className="zbg-header-top hidden bg-primary text-white/90 md:block">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-2 text-sm">
           <div className="flex items-center gap-6">
             <a href={CONTACT.emailHref} className="flex items-center gap-2 hover:text-white">
@@ -68,7 +86,7 @@ export default function Header() {
 
       {/* Main bar */}
       <motion.div
-        className="sticky top-0 z-40 border-b border-line bg-white shadow-sm"
+        className="relative z-40 border-b border-line bg-white shadow-sm"
         animate={{
           paddingTop: condensed ? 0 : 6,
           paddingBottom: condensed ? 0 : 6,
