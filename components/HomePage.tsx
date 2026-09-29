@@ -68,7 +68,7 @@ export type HeroContent = {
 };
 
 const DEFAULT_HERO: HeroContent = {
-  eyebrow: "One stop business solutions",
+  eyebrow: "One Stop Solution of Choice to Every Business",
   heading: "Build a stronger business with *trusted expertise.*",
   subheading:
     "Zhavilah Business Group Ltd is a Rwanda-registered global consulting firm providing the expert support businesses need to grow sustainably.",
@@ -211,15 +211,18 @@ export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }
             transition={{ duration: 1, delay: 0.2, ease: EASE }}
           >
             {/* Radar rings — a slow, continuous pulse that keeps the indigo
-                panel alive without pulling attention from the copy. */}
-            {[0, 0.8].map((delay, i) => (
-              <motion.div
-                key={delay}
-                className={`zbg-orbit ${i === 0 ? "zbg-orbit-one" : "zbg-orbit-two"}`}
-                animate={reduce ? undefined : { scale: [1, 1.07, 1], opacity: [0.45, 0.9, 0.45] }}
-                transition={{ duration: 5.5, delay, repeat: Infinity, ease: "easeInOut" }}
-              />
-            ))}
+                panel alive without pulling attention from the copy. They sit
+                low and are clipped to the frame so no line crosses a face. */}
+            <div className="zbg-orbit-clip" aria-hidden="true">
+              {[0, 0.8].map((delay, i) => (
+                <motion.div
+                  key={delay}
+                  className={`zbg-orbit ${i === 0 ? "zbg-orbit-one" : "zbg-orbit-two"}`}
+                  animate={reduce ? undefined : { scale: [1, 1.07, 1], opacity: [0.45, 0.9, 0.45] }}
+                  transition={{ duration: 5.5, delay, repeat: Infinity, ease: "easeInOut" }}
+                />
+              ))}
+            </div>
 
             <Image
               src={hero.imageUrl}

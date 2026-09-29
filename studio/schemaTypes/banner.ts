@@ -12,7 +12,7 @@ export const banner = defineType({
       name: "eyebrow",
       title: "Small label above the headline",
       type: "string",
-      initialValue: "One stop business solutions",
+      initialValue: "One Stop Solution of Choice to Every Business",
       validation: (rule) => rule.max(60),
     }),
     defineField({

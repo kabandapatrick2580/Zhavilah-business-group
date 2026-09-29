@@ -31,12 +31,14 @@ export default async function Footer() {
       <div className="bg-mint text-primary">
         <Stagger className="mx-auto grid max-w-7xl gap-10 px-6 py-16 sm:grid-cols-2 lg:grid-cols-4">
           <StaggerItem>
+            {/* `bg-[#fff]` rather than `bg-white`: globals.css tints every
+                `.bg-white` in this footer row to a translucent overlay. */}
             <Image
               src="/assets/img/logo-2.png"
               alt="ZHAVILAH BUSINESS GROUP"
               width={500}
               height={186}
-              className="h-11 w-auto"
+              className="h-14 w-auto rounded-xl bg-[#fff] px-3 py-1.5"
             />
             <p className="mt-5 font-semibold leading-relaxed">
               One Stop Solution of Choice to Every Business

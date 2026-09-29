@@ -23,6 +23,7 @@ const industries: { title: string; copy: string; href: string; image?: string }[
     title: "QuickBooks Solutions",
     copy: "Certified QuickBooks ProAdvisors delivering licensing, setup, data migration, training and ongoing support on QuickBooks Online and Desktop.",
     href: "/quickbooks-solutions",
+    image: "/assets/img/service/quickbooks-hero.jpg",
   },
   {
     title: "Tax Advisory & Compliance",
