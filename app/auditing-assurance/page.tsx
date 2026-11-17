@@ -28,7 +28,6 @@ const rightColumn: HistoryBlock[] = [
   {
     kind: "card",
     icon: "scale",
-    eyebrow: "Audit Assurance",
     heading: "Transparency & Integrity",
     text: "We believe that effective auditing is not just about compliance—it's about helping your organization thrive and grow through thorough and honest audits that help you understand your financial position.",
   },

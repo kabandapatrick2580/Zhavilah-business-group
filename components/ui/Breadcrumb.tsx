@@ -22,7 +22,7 @@ export default function Breadcrumb({
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-dark/95 via-brand-dark/85 to-brand/60" />
 
       <div className="mx-auto w-full max-w-7xl px-6 py-16 text-white">
-        <Reveal blur duration={0.8}>
+        <Reveal duration={0.8}>
           <h1 className="font-heading text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-[3.5rem]">
             {title}
           </h1>

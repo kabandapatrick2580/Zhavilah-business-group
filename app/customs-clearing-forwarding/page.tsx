@@ -16,8 +16,8 @@ const leftColumn: HistoryBlock[] = [
   {
     kind: "card",
     icon: "route",
-    heading: "Seamless Clearing and Forwarding",
-    text: "At ZHAVILAH BUSINESS GROUP Ltd, we specialize in providing seamless Clearing and Forwarding services to help businesses navigate the complexities of international shipping and customs regulations.",
+    heading: "Clearing and Forwarding",
+    text: "At ZHAVILAH BUSINESS GROUP Ltd, we clear and forward goods for businesses importing and exporting, and handle the customs paperwork and regulations on your behalf.",
   },
   { kind: "image", icon: "container", src: "/assets/img/project/project-2.jpg", alt: "Import Export Services" },
   {
@@ -38,7 +38,6 @@ const rightColumn: HistoryBlock[] = [
   {
     kind: "card",
     icon: "package-check",
-    eyebrow: "Clearing Services",
     heading: "Comprehensive Import & Export Solutions",
     text: "We offer specialized services for Import (DMC), Export (EX 1), Re-Export (R 1), and Transit Goods (T 1), reducing delays and minimizing costs for your international trade operations.",
   },

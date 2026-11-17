@@ -133,7 +133,7 @@ export default async function BlogPostPage({
                         )}
                       </div>
                       <div className="flex flex-1 flex-col p-6">
-                        <span className="text-xs font-semibold uppercase tracking-[0.1em] text-brand">
+                        <span className="text-sm font-medium text-brand-muted">
                           {formatPostDate(item.publishedAt)}
                         </span>
                         <h3 className="mt-2 font-heading text-lg font-extrabold leading-snug text-brand-ink">

@@ -12,7 +12,7 @@ const leftColumn: HistoryBlock[] = [
     kind: "card",
     icon: "calculator",
     heading: "Reliable Financial Solutions",
-    text: "At ZHAVILAH BUSINESS GROUP Ltd, we are committed to delivering reliable, tailored accounting solutions designed to help you navigate the complexities of finance and grow your business with confidence.",
+    text: "At ZHAVILAH BUSINESS GROUP Ltd, we provide accounting services for businesses in Rwanda, from daily bookkeeping to financial statements.",
   },
   { kind: "image", icon: "users", src: "/assets/img/project/project-2.jpg", alt: "Experienced Accountants" },
   {
@@ -28,9 +28,8 @@ const rightColumn: HistoryBlock[] = [
   {
     kind: "card",
     icon: "layers",
-    eyebrow: "Accounting Services",
     heading: "Comprehensive Solutions",
-    text: "From tax planning and bookkeeping to auditing and business consulting, we are here to simplify your financial journey with our professional accounting services.",
+    text: "From tax planning and bookkeeping to auditing and business consulting, we cover your accounting from one team.",
   },
   { kind: "image", icon: "line-chart", src: "/assets/img/project/project-4.jpg", alt: "Accounting Benefits" },
   {

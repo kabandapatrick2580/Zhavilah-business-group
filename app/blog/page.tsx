@@ -29,7 +29,6 @@ export default async function BlogIndexPage() {
         <div className="mx-auto max-w-7xl px-6">
           <SectionHeading
             center
-            eyebrow="From Our Desk"
             title="Guidance for Growing Businesses"
           />
 
@@ -61,7 +60,7 @@ export default async function BlogIndexPage() {
                       </div>
 
                       <div className="flex flex-1 flex-col p-7">
-                        <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em] text-brand">
+                        <span className="flex items-center gap-2 text-sm font-medium text-brand-muted">
                           <CalendarDays className="size-4" />
                           {formatPostDate(post.publishedAt)}
                         </span>

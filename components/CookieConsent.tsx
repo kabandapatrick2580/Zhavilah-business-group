@@ -87,9 +87,8 @@ export default function CookieConsent() {
             transition={{ type: "spring", stiffness: 220, damping: 26, mass: 0.9 }}
             className="fixed inset-x-0 bottom-0 z-[70] px-3 pb-3 sm:px-5 sm:pb-5"
           >
-            <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-brand-line bg-white/95 shadow-[0_24px_70px_rgba(25,20,65,0.22)] backdrop-blur-xl">
+            <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-brand-line bg-white shadow-[0_24px_70px_rgba(25,20,65,0.22)]">
               {/* Light-blue top edge — a small brand cue on an otherwise plain surface */}
-              <div className="h-1 bg-gradient-to-r from-brand via-accent to-brand-sky" />
 
               <div className="p-5 sm:p-7">
                 <div className="flex items-start gap-4">

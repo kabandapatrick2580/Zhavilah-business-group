@@ -34,7 +34,6 @@ const rightColumn: HistoryBlock[] = [
   {
     kind: "card",
     icon: "users",
-    eyebrow: "Training Center",
     heading: "Experienced Industry Instructors",
     text: "Learn from industry experts who bring years of real-world experience, offering courses for beginners and experienced professionals looking to sharpen their expertise in Rwandan taxation and accounting software.",
   },
@@ -43,7 +42,7 @@ const rightColumn: HistoryBlock[] = [
     kind: "card",
     icon: "repeat",
     heading: "Flexible Training Options",
-    text: "With flexible learning options including classroom, online, or one-on-one sessions tailored to your schedule, we're committed to helping you achieve your professional goals.",
+    text: "With flexible learning options including classroom, online, or one-on-one sessions that fit your schedule.",
   },
   { kind: "image", icon: "trending", src: "/assets/img/about/_S7A1737b.jpg", alt: "Career Advancement" },
   {
@@ -82,8 +81,7 @@ export default async function TrainingPage() {
             thriving career. Employers today are looking for candidates who bring practical, hands-on skills —
             individuals who can deliver tangible results from day one. In today&apos;s competitive job market,
             having the right blend of technical expertise and real-world experience sets you apart. Equip
-            yourself with the practical accounting skills that employers are seeking and unlock new
-            opportunities for career growth by joining{" "}
+            yourself with the practical accounting skills that employers are seeking by joining{" "}
             <strong className="text-brand-ink">ZHAVILAH PRACTICAL TRAINING CENTER</strong> to get the full
             package for your accounting position.
           </p>

@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRight, BadgeCheck, Calculator, Check, ChevronDown, CircleDollarSign,
-  FileCheck2, Globe2, GraduationCap, Play, Truck, UsersRound,
+  FileCheck2, Globe2, GraduationCap, Truck, UsersRound,
 } from "lucide-react";
-import { Counter, EASE, Reveal, Stagger, StaggerItem } from "@/components/motion/primitives";
+import { EASE, Reveal, Stagger, StaggerItem } from "@/components/motion/primitives";
 
 // `featured` promotes a card to a full-width band across the top of the grid —
 // used for a newly launched service. `image` is optional: without one the card
@@ -23,19 +23,12 @@ const services: {
   featured?: boolean;
 }[] = [
   { title: "QuickBooks Solutions", copy: "Certified QuickBooks ProAdvisors — licensing, setup, data migration, training and ongoing support for QuickBooks Online and Desktop.", href: "/quickbooks-solutions", icon: BadgeCheck, featured: true },
-  { title: "Accounting Services", copy: "Reliable, tailored accounting solutions to help you navigate financial complexities and grow with confidence.", href: "/accounting-services", icon: Calculator, image: "/assets/img/service/service-1.jpg" },
-  { title: "Tax Advisory Services", copy: "Expert tax planning and compliance guidance that keeps your business prepared and efficient.", href: "/tax-advisory", icon: CircleDollarSign, image: "/assets/img/service/service-2.jpg" },
-  { title: "Audit & Assurance", copy: "Clear, credible insight for sound and transparent financial operations.", href: "/auditing-assurance", icon: FileCheck2, image: "/assets/img/service/service-3.jpg" },
-  { title: "Customs Clearing & Forwarding", copy: "Seamless support for international shipping and customs requirements.", href: "/customs-clearing-forwarding", icon: Globe2, image: "/assets/img/service/service-4.jpg" },
-  { title: "Transport & Logistics", copy: "Practical road, air and sea cargo solutions for every movement.", href: "/transport-logistics", icon: Truck, image: "/assets/img/service/service-5.jpg" },
-  { title: "Professional Training", copy: "Practical training that equips teams with relevant business skills.", href: "/training", icon: GraduationCap, image: "/assets/img/about/4.jpeg" },
-];
-
-const stats: { value: number; suffix: string; label: string }[] = [
-  { value: 9, suffix: "+", label: "Service categories" },
-  { value: 1, suffix: "×", label: "One-stop business partner" },
-  { value: 360, suffix: "°", label: "Business support approach" },
-  { value: 100, suffix: "%", label: "Client-focused service" },
+  { title: "Accounting Services", copy: "Bookkeeping, financial statements and day-to-day accounting set up around how your business runs.", href: "/accounting-services", icon: Calculator, image: "/assets/img/service/service-1.jpg" },
+  { title: "Tax Advisory Services", copy: "Tax planning and compliance for corporate and personal income tax, VAT and payroll.", href: "/tax-advisory", icon: CircleDollarSign, image: "/assets/img/service/service-2.jpg" },
+  { title: "Audit & Assurance", copy: "Independent review of your books and controls.", href: "/auditing-assurance", icon: FileCheck2, image: "/assets/img/service/service-3.jpg" },
+  { title: "Customs Clearing & Forwarding", copy: "Clearing, forwarding and paperwork for goods moving across borders.", href: "/customs-clearing-forwarding", icon: Globe2, image: "/assets/img/service/service-4.jpg" },
+  { title: "Transport & Logistics", copy: "Road, air and sea cargo.", href: "/transport-logistics", icon: Truck, image: "/assets/img/service/service-5.jpg" },
+  { title: "Professional Training", copy: "Courses in accounting, tax and QuickBooks.", href: "/training", icon: GraduationCap, image: "/assets/img/about/4.jpeg" },
 ];
 
 const faqs = [
@@ -58,7 +51,6 @@ const testimonials = [
  * the live site intact until an editor publishes a banner.
  */
 export type HeroContent = {
-  eyebrow: string;
   heading: string;
   subheading: string;
   imageUrl: string;
@@ -68,7 +60,6 @@ export type HeroContent = {
 };
 
 const DEFAULT_HERO: HeroContent = {
-  eyebrow: "One Stop Solution of Choice to Every Business",
   heading: "Build a stronger business with *trusted expertise.*",
   subheading:
     "Zhavilah Business Group Ltd is a Rwanda-registered global consulting firm providing the expert support businesses need to grow sustainably.",
@@ -104,52 +95,97 @@ function parseHeadline(raw: string): HeadlineToken[] {
   return tokens;
 }
 
-/** Headline words rise and sharpen one after another rather than as a block. */
-function AnimatedHeadline({ heading }: { heading: string }) {
+const TYPE_START_MS = 450;
+const TYPE_STEP_MS = 42;
+const TYPE_PAUSE_MS = 220; // extra beat after punctuation
+
+/**
+ * Types the headline out one character at a time.
+ *
+ * The full text is always laid out (the untyped remainder is `visibility:
+ * hidden`), so nothing reflows as it types and the lines break where they will
+ * finally land. Assistive tech reads the finished sentence from a screen-reader
+ * copy instead of hearing it assembled letter by letter. With reduced motion the
+ * headline is simply present. `onDone` lets the rest of the hero follow it in.
+ */
+function TypedHeadline({ heading, onDone }: { heading: string; onDone: () => void }) {
   const reduce = useReducedMotion();
-  const tokens = parseHeadline(heading);
+  const words = parseHeadline(heading).flatMap((token) =>
+    token.text.split(/\s+/).filter(Boolean).map((text) => ({ text, highlight: token.highlight })),
+  );
+  const total = words.reduce((n, w) => n + w.text.length + 1, 0) - 1;
+  const plain = words.map((w) => w.text).join(" ");
 
-  const container = {
-    hidden: {},
-    visible: { transition: { staggerChildren: reduce ? 0 : 0.07, delayChildren: 0.15 } },
-  };
-  const word = {
-    hidden: { opacity: 0, y: reduce ? 0 : 26, filter: reduce ? "blur(0px)" : "blur(8px)" },
-    visible: { opacity: 1, y: 0, filter: "blur(0px)" },
-  };
+  const [count, setCount] = useState(0);
+  const [caret, setCaret] = useState(true);
+  const doneRef = useRef(onDone);
+  doneRef.current = onDone;
 
+  useEffect(() => {
+    if (reduce) {
+      setCount(total);
+      setCaret(false);
+      doneRef.current();
+      return;
+    }
+
+    let n = 0;
+    let timer: ReturnType<typeof setTimeout>;
+    const tick = () => {
+      n += 1;
+      setCount(n);
+      if (n >= total) {
+        doneRef.current();
+        timer = setTimeout(() => setCaret(false), 2400);
+        return;
+      }
+      const typed = plain[n - 1];
+      timer = setTimeout(tick, /[.,;:!?]/.test(typed) ? TYPE_STEP_MS + TYPE_PAUSE_MS : TYPE_STEP_MS);
+    };
+    timer = setTimeout(tick, TYPE_START_MS);
+    return () => clearTimeout(timer);
+  }, [reduce, total, plain]);
+
+  let offset = 0;
   return (
-    <motion.h1 variants={container} initial="hidden" animate="visible">
-      {tokens.map((token, i) => {
-        const Tag = token.highlight ? motion.em : motion.span;
-        return (
-          <Tag
-            // Words legitimately repeat in a headline, so the index is part of
-            // the key.
-            key={`${token.text}-${i}`}
-            variants={word}
-            transition={{ duration: 0.7, ease: EASE }}
-            className="inline-block"
-          >
-            {token.text}
-            {i < tokens.length - 1 && <>&nbsp;</>}
-          </Tag>
-        );
-      })}
-    </motion.h1>
+    <h1>
+      <span className="sr-only">{plain}</span>
+      <span aria-hidden="true">
+        {words.map((word, i) => {
+          const start = offset;
+          offset += word.text.length + 1;
+          const typed = Math.min(Math.max(count - start, 0), word.text.length);
+          const here = caret && count >= start && count <= start + word.text.length;
+          const Tag = word.highlight ? "em" : "span";
+          return (
+            <Fragment key={`${word.text}-${i}`}>
+              <Tag className="inline-block">
+                {word.text.slice(0, typed)}
+                {here && <span className="zbg-caret" data-idle={count >= total ? "" : undefined} />}
+                <span className="invisible">{word.text.slice(typed)}</span>
+              </Tag>
+              {i < words.length - 1 && " "}
+            </Fragment>
+          );
+        })}
+      </span>
+    </h1>
   );
 }
 
 export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }) {
   const reduce = useReducedMotion();
   const [openFaq, setOpenFaq] = useState(0);
+  const [typed, setTyped] = useState(false);
 
   // Entrance timing for the hero column, which animates on load rather than
   // on scroll because it is already in view.
+  // The supporting copy follows the headline: it waits for the typing to
+  // finish, then rises in once.
   const enter = (delay: number) => ({
-    initial: { opacity: 0, y: reduce ? 0 : 22 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.7, delay, ease: EASE },
+    initial: { opacity: 0, y: reduce ? 0 : 16 },
+    animate: typed ? { opacity: 1, y: 0 } : { opacity: 0, y: reduce ? 0 : 16 },
+    transition: { duration: 0.6, delay, ease: EASE },
   });
 
   return (
@@ -157,50 +193,25 @@ export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }
       <section className="zbg-hero">
         <div className="zbg-shell zbg-hero-grid">
           <div className="zbg-hero-copy">
-            <motion.span className="zbg-eyebrow" {...enter(0)}>
-              <motion.span
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
-                style={{ transformOrigin: "left" }}
-              />{" "}
-              {hero.eyebrow}
-            </motion.span>
 
-            <AnimatedHeadline heading={hero.heading} />
+            <TypedHeadline heading={hero.heading} onDone={() => setTyped(true)} />
 
-            <motion.p {...enter(0.55)}>{hero.subheading}</motion.p>
+            <motion.p {...enter(0.05)}>{hero.subheading}</motion.p>
 
-            <motion.div className="zbg-hero-actions" {...enter(0.68)}>
+            <motion.div className="zbg-hero-actions" {...enter(0.18)}>
               <motion.div whileHover={reduce ? undefined : { y: -3 }} whileTap={{ scale: 0.97 }}>
                 <Link href={hero.ctaHref} className="zbg-button">
                   {hero.ctaLabel} <ArrowRight />
                 </Link>
               </motion.div>
               <a href="tel:+250788221231" className="zbg-call">
-                <motion.span
-                  animate={reduce ? undefined : { boxShadow: ["0 0 0 0 rgba(37,31,97,0.28)", "0 0 0 14px rgba(37,31,97,0)"] }}
-                  transition={{ duration: 2.2, repeat: Infinity, ease: "easeOut" }}
-                >
+                <span>
                   <UsersRound />
-                </motion.span>
+                </span>
                 <small>
                   Talk to our team<strong>+250 788 221 231</strong>
                 </small>
               </a>
-            </motion.div>
-
-            <motion.div className="zbg-hero-proof" {...enter(0.8)}>
-              <div className="zbg-avatars">
-                {["_S7A1746", "_S7A1748", "_S7A1750"].map((name) => (
-                  <Image key={name} src={`/assets/img/about/${name}.jpg`} alt="" width={34} height={34} />
-                ))}
-              </div>
-              <span>
-                <b>Business-first</b>
-                <br />
-                solutions for every stage
-              </span>
             </motion.div>
           </div>
 
@@ -210,81 +221,26 @@ export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2, ease: EASE }}
           >
-            {/* Radar rings — a slow, continuous pulse that keeps the indigo
-                panel alive without pulling attention from the copy. They sit
-                low and are clipped to the frame so no line crosses a face. */}
-            <div className="zbg-orbit-clip" aria-hidden="true">
-              {[0, 0.8].map((delay, i) => (
-                <motion.div
-                  key={delay}
-                  className={`zbg-orbit ${i === 0 ? "zbg-orbit-one" : "zbg-orbit-two"}`}
-                  animate={reduce ? undefined : { scale: [1, 1.07, 1], opacity: [0.45, 0.9, 0.45] }}
-                  transition={{ duration: 5.5, delay, repeat: Infinity, ease: "easeInOut" }}
-                />
-              ))}
-            </div>
 
             <Image
               src={hero.imageUrl}
               alt={hero.imageAlt}
               fill
               priority
-              sizes="(max-width: 900px) 85vw, 590px"
+              sizes="(max-width: 900px) 85vw, (max-width: 1099px) 590px, 60vw"
               className="object-cover"
             />
-
-            <motion.div
-              className="zbg-float-card zbg-float-top"
-              initial={reduce ? { opacity: 0 } : { opacity: 0, x: -30, scale: 0.9 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.9, ease: EASE }}
-            >
-              <motion.div
-                animate={reduce ? undefined : { y: [0, -7, 0] }}
-                transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
-                className="flex items-center gap-[11px]"
-              >
-                <BadgeCheck />
-                <span>
-                  <b>Professional</b> expertise
-                </span>
-              </motion.div>
-            </motion.div>
-
-            <motion.div
-              className="zbg-float-card zbg-float-bottom"
-              initial={reduce ? { opacity: 0 } : { opacity: 0, x: 30, scale: 0.9 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              transition={{ duration: 0.7, delay: 1.05, ease: EASE }}
-            >
-              <motion.div
-                animate={reduce ? undefined : { y: [0, 8, 0] }}
-                transition={{ duration: 5.2, delay: 0.6, repeat: Infinity, ease: "easeInOut" }}
-                className="flex items-center gap-[11px]"
-              >
-                <strong>9+</strong>
-                <span>
-                  service
-                  <br />
-                  categories
-                </span>
-              </motion.div>
-            </motion.div>
           </motion.div>
         </div>
       </section>
 
       <section className="zbg-intro zbg-shell">
         <Reveal>
-          <span className="zbg-eyebrow">
-            <span /> What we do
-          </span>
-          <h2>Everything your business needs to move forward.</h2>
+          <h2>Accounting, tax, audit, customs and logistics under one roof.</h2>
         </Reveal>
         <Reveal delay={0.12}>
           <p>
-            From day-to-day financial clarity to cross-border movement, our specialists turn complex obligations
-            into practical progress.
+            One team handles your books, your tax filings and your shipments, so you deal with one firm instead of five.
           </p>
         </Reveal>
       </section>
@@ -316,7 +272,7 @@ export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }
                   <h3>{title}</h3>
                   <p>{copy}</p>
                   <Link href={href}>
-                    Discover service <ArrowRight />
+                    Learn more <ArrowRight />
                   </Link>
                 </div>
               </StaggerItem>
@@ -329,20 +285,6 @@ export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }
           </Reveal>
         </div>
       </section>
-
-      <section className="zbg-stats">
-        <Stagger className="zbg-shell zbg-stats-grid" step={0.1}>
-          {stats.map((stat) => (
-            <StaggerItem key={stat.label}>
-              <strong>
-                <Counter value={stat.value} suffix={stat.suffix} suffixClassName="zbg-stat-suffix" />
-              </strong>
-              <p>{stat.label}</p>
-            </StaggerItem>
-          ))}
-        </Stagger>
-      </section>
-
       <section className="zbg-about zbg-shell">
         <Reveal className="zbg-about-image" direction="right" duration={0.9}>
           <Image
@@ -364,10 +306,7 @@ export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }
         </Reveal>
 
         <Reveal className="zbg-about-copy" direction="left" delay={0.1}>
-          <span className="zbg-eyebrow">
-            <span /> About Zhavilah
-          </span>
-          <h2>Business guidance that feels clear, capable and close at hand.</h2>
+          <h2>About Zhavilah Business Group</h2>
           <p>
             Our mission is to empower businesses through a one-stop center for expert consulting, fostering
             innovation and positive transformation across every part of their operations.
@@ -394,17 +333,13 @@ export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }
       <section className="zbg-training">
         <div className="zbg-shell zbg-training-wrap">
           <Reveal direction="right">
-            <span className="zbg-eyebrow">
-              <span /> Learn with us
-            </span>
-            <h2>Practical skills for confident decisions.</h2>
+            <h2>Learn accounting, tax and QuickBooks with us.</h2>
             <p>
-              Visit our training center for hands-on, business-focused learning in accounting, taxation, software
-              and financial reporting.
+              Classroom, online and one-on-one sessions in accounting, taxation, QuickBooks and financial reporting.
             </p>
             <motion.span className="inline-block" whileHover={reduce ? undefined : { y: -3 }} whileTap={{ scale: 0.97 }}>
               <Link href="/training" className="zbg-button">
-                Visit training center <ArrowRight />
+                Visit the training center <ArrowRight />
               </Link>
             </motion.span>
           </Reveal>
@@ -417,30 +352,14 @@ export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }
               sizes="(max-width: 900px) 92vw, 600px"
               className="object-cover"
             />
-            <motion.button
-              aria-label="Learn about Zhavilah training"
-              whileHover={reduce ? undefined : { scale: 1.1 }}
-              whileTap={{ scale: 0.94 }}
-              animate={
-                reduce
-                  ? undefined
-                  : { boxShadow: ["0 0 0 0 rgba(124,192,245,0.6)", "0 0 0 22px rgba(124,192,245,0)"] }
-              }
-              transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
-            >
-              <Play />
-            </motion.button>
           </Reveal>
         </div>
       </section>
 
       <section className="zbg-faq zbg-shell">
         <Reveal className="zbg-faq-heading" direction="right">
-          <span className="zbg-eyebrow">
-            <span /> Need to know
-          </span>
-          <h2>Common questions about our services.</h2>
-          <p>Find a quick answer or speak with a member of our team about your specific requirements.</p>
+          <h2>Questions about our services</h2>
+          <p>Not answered here? Talk to our team.</p>
           <Link href="/contact" className="zbg-text-link">
             Contact our team <ArrowRight />
           </Link>
@@ -452,7 +371,6 @@ export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }
             return (
               <StaggerItem key={question} className={`zbg-faq-item ${isOpen ? "is-open" : ""}`}>
                 <button onClick={() => setOpenFaq(isOpen ? -1 : index)} aria-expanded={isOpen}>
-                  <span>0{index + 1}</span>
                   {question}
                   <ChevronDown />
                 </button>
@@ -478,25 +396,15 @@ export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }
 
       <section className="zbg-testimonials">
         <div className="zbg-shell">
-          <Reveal className="zbg-section-center" blur>
-            <span className="zbg-eyebrow">
-              <span /> Inspiring journeys
-            </span>
-            <h2>Trusted by businesses who want to go further.</h2>
+          <Reveal className="zbg-section-center">
+            <h2>What clients say</h2>
           </Reveal>
 
           <Stagger className="zbg-testimonial-grid">
-            {testimonials.map(([name, quote], i) => (
+            {testimonials.map(([name, quote]) => (
               <StaggerItem as="article" key={name} lift>
-                <div className="zbg-quote">“</div>
                 <p>{quote}</p>
                 <div className="zbg-person">
-                  <Image
-                    src={["/assets/img/about/_S7A1746.jpg", "/assets/img/about/_S7A1748.jpg", "/assets/img/about/_S7A1737.jpg"][i]}
-                    alt=""
-                    width={40}
-                    height={40}
-                  />
                   <strong>
                     {name}
                     <small>Zhavilah client</small>

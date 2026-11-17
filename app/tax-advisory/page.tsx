@@ -28,7 +28,6 @@ const rightColumn: HistoryBlock[] = [
   {
     kind: "card",
     icon: "layers",
-    eyebrow: "Tax Advisory Services",
     heading: "Comprehensive Tax Support",
     text: "From corporate and personal income tax to value added tax and payroll taxes, we provide comprehensive support for all your taxation needs across Rwanda.",
   },

@@ -12,13 +12,13 @@ const leftColumn: HistoryBlock[] = [
     kind: "card",
     icon: "compass",
     heading: "Expert Business Advisory",
-    text: "At ZHAVILAH BUSINESS GROUP Ltd, we offer expert Business Advisory Services designed to help you navigate today's complex business landscape.",
+    text: "At ZHAVILAH BUSINESS GROUP Ltd, we advise businesses on registration, planning and compliance.",
   },
   { kind: "image", icon: "clipboard", src: "/assets/img/project/project-2.jpg", alt: "Business Planning" },
   {
     kind: "card",
     icon: "target",
-    heading: "Tailored Solutions",
+    heading: "Advice Built Around Your Business",
     text: "Our experienced advisors work closely with you to understand your unique goals and challenges, providing strategic insights and actionable solutions.",
   },
   { kind: "image", icon: "milestone", src: "/assets/img/about/1708158441664.jpg", alt: "Business Strategy" },
@@ -28,9 +28,8 @@ const rightColumn: HistoryBlock[] = [
   {
     kind: "card",
     icon: "route",
-    eyebrow: "Business Advisory",
     heading: "Strategic Guidance",
-    text: "Whether you're a startup, a growing enterprise, or an established organization, our tailored advice helps you make smarter decisions, streamline operations, and drive long-term success.",
+    text: "Whether you're a startup, a growing enterprise, or an established organization, we give advice that fits your size and stage.",
   },
   {
     kind: "image",

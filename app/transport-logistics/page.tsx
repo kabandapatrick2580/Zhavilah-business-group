@@ -28,7 +28,6 @@ const rightColumn: HistoryBlock[] = [
   {
     kind: "card",
     icon: "plane",
-    eyebrow: "Transport Services",
     heading: "Efficient Air Cargo Transport",
     text: "When time is critical, our air cargo transport services provide the fastest delivery options for your valuable or time-sensitive shipments, with global reach and local expertise.",
   },
@@ -44,7 +43,7 @@ const rightColumn: HistoryBlock[] = [
     kind: "card",
     icon: "globe",
     heading: "Domestic & International Removals",
-    text: "Trust ZHAVILAH BUSINESS GROUP Ltd for comprehensive domestic and international removal services for personal effects, along with innovative e-commerce logistics solutions to support your online business.",
+    text: "Trust ZHAVILAH BUSINESS GROUP Ltd for comprehensive domestic and international removal services for personal effects, along with delivery logistics for online businesses.",
   },
 ];
 

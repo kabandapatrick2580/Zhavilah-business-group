@@ -153,7 +153,7 @@ export default function AboutPage() {
             />
           </CurtainReveal>
           <div className="order-1 lg:order-2">
-            <SectionHeading eyebrow="About ZHAVILAH" title="One Stop Solution of Choice to Every Business" />
+            <SectionHeading title="One Stop Solution of Choice to Every Business" />
             <div className="mt-6 space-y-5">
               <div>
                 <h3 className="font-heading text-lg font-extrabold text-brand-ink">Vision</h3>
@@ -196,7 +196,7 @@ export default function AboutPage() {
       <section className="bg-brand-haze py-20">
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2">
           <div>
-            <SectionHeading eyebrow="Why Choose Us" title="Your Trusted Business Partner" />
+            <SectionHeading title="Your Trusted Business Partner" />
             <p className="mt-5 leading-relaxed text-brand-muted">
               At ZHAVILAH Business Group Ltd, our mission is to empower businesses through a one-stop center for
               expert consulting — fostering innovation and driving positive transformation across all aspects of
@@ -220,16 +220,6 @@ export default function AboutPage() {
                 className="object-cover"
               />
             </CurtainReveal>
-            <Reveal
-              delay={0.45}
-              className="absolute -bottom-6 left-6 flex items-center gap-4 rounded-2xl bg-brand-sky p-5 shadow-lg"
-            >
-              <TrendingUp className="size-8 text-brand" />
-              <div>
-                <div className="font-heading text-3xl font-extrabold text-brand-ink">9+</div>
-                <span className="text-sm font-medium text-brand-ink">Service Categories</span>
-              </div>
-            </Reveal>
           </div>
         </div>
       </section>
@@ -256,7 +246,7 @@ export default function AboutPage() {
         <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2">
           <Reveal
             direction="right"
-            className="flex flex-col justify-center rounded-3xl bg-gradient-to-br from-brand to-brand-dark p-10 text-white"
+            className="flex flex-col justify-center rounded-3xl bg-brand-dark p-10 text-white"
           >
             <h2 className="font-heading text-3xl font-extrabold sm:text-4xl">Visit Our Training Center</h2>
             <p className="mt-5 leading-relaxed text-white/80">
@@ -272,7 +262,7 @@ export default function AboutPage() {
             </Link>
           </Reveal>
           <div>
-            <SectionHeading eyebrow="FAQ Questions" title="Common Questions About Our Services" />
+            <SectionHeading title="Common Questions About Our Services" />
             <div className="mt-8">
               <Faq items={faqs} />
             </div>
@@ -283,7 +273,7 @@ export default function AboutPage() {
       {/* Team */}
       <section className="bg-brand-haze py-20">
         <div className="mx-auto max-w-7xl px-6">
-          <SectionHeading eyebrow="Team member" title="Our Leadership Team" center className="mb-12" />
+          <SectionHeading title="Our Leadership Team" center className="mb-12" />
           <TeamGrid members={team} />
         </div>
       </section>

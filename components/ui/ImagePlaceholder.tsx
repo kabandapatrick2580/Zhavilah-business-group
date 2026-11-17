@@ -51,7 +51,7 @@ export default function ImagePlaceholder({
 
       {spec && (
         <span
-          className={`font-mono text-[11px] font-semibold uppercase tracking-[0.16em] ${
+          className={`text-xs font-medium ${
             dark ? "text-white/50" : "text-brand-muted/70"
           }`}
         >

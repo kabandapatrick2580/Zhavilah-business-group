@@ -24,7 +24,7 @@ const components: PortableTextComponents = {
       </h3>
     ),
     blockquote: ({ children }) => (
-      <blockquote className="mt-8 border-l-4 border-brand-sky bg-brand-haze px-6 py-5 text-lg italic leading-relaxed text-brand-ink">
+      <blockquote className="mt-8 rounded-2xl bg-brand-haze px-6 py-5 text-lg leading-relaxed text-brand-ink">
         {children}
       </blockquote>
     ),

@@ -20,7 +20,6 @@ export default async function Page() {
   const hero: HeroContent | undefined =
     banner && imageUrl
       ? {
-          eyebrow: banner.eyebrow ?? "One Stop Solution of Choice to Every Business",
           heading: banner.heading,
           subheading: banner.subheading ?? "",
           imageUrl,

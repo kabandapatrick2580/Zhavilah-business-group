@@ -27,7 +27,7 @@ const industries: { title: string; copy: string; href: string; image?: string }[
   },
   {
     title: "Tax Advisory & Compliance",
-    copy: "Navigating tax laws can be complex — our experts provide tailored solutions for businesses and individuals to optimize tax efficiency.",
+    copy: "Tax planning and compliance for businesses and individuals.",
     href: "/tax-advisory",
     image: "/assets/img/service/service-2.jpg",
   },
@@ -45,13 +45,13 @@ const industries: { title: string; copy: string; href: string; image?: string }[
   },
   {
     title: "Customs Clearing & Forwarding",
-    copy: "We streamline the import/export process, ensuring hassle-free customs clearance and efficient global trade logistics.",
+    copy: "Import and export clearance and forwarding.",
     href: "/customs-clearing-forwarding",
     image: "/assets/img/service/service-5.jpg",
   },
   {
     title: "Transport & Logistics",
-    copy: "Our transportation services cover road, air, and sea freight, ensuring smooth and reliable delivery of goods across borders.",
+    copy: "Road, air and sea freight across borders.",
     href: "/transport-logistics",
     image: "/assets/img/service/service-2.jpg",
   },
@@ -63,7 +63,7 @@ const industries: { title: string; copy: string; href: string; image?: string }[
   },
   {
     title: "Professional Training & Development",
-    copy: "Our training programs equip professionals with industry-leading knowledge in accounting, taxation, and financial management.",
+    copy: "Courses in accounting, taxation and financial management.",
     href: "/training",
     image: "/assets/img/service/service-4.jpg",
   },
@@ -114,7 +114,7 @@ export default function IndustriesPage() {
                     <span className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-dark/10 to-brand-dark/95" />
                   </>
                 ) : (
-                  <span className="absolute inset-0 -z-10 bg-[linear-gradient(118deg,#17133e_0%,#251f61_56%,#30287e_100%)]" />
+                  <span className="absolute inset-0 -z-10 bg-brand" />
                 )}
                 <div className="relative">
                   <h3 className="font-heading text-xl font-extrabold text-white">{item.title}</h3>
@@ -131,7 +131,7 @@ export default function IndustriesPage() {
           </Stagger>
 
           {/* Why choose us */}
-          <Reveal className="mt-16 text-center" blur>
+          <Reveal className="mt-16 text-center">
             <h2 className="font-heading text-3xl font-extrabold text-brand-ink sm:text-4xl">Why Choose Us?</h2>
           </Reveal>
           <Stagger className="mt-10 grid gap-6 md:grid-cols-3" step={0.12}>

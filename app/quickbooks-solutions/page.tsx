@@ -88,7 +88,6 @@ const rightColumn: HistoryBlock[] = [
   {
     kind: "card",
     icon: "handshake",
-    eyebrow: "QuickBooks Solutions",
     heading: "Your Accounting Technology Partner",
     text: "We don't just sell QuickBooks — we become your trusted accounting technology partner, from implementation through to ongoing support.",
   },
@@ -129,7 +128,6 @@ export default function QuickBooksSolutionsPage() {
         <div className="mx-auto grid max-w-7xl items-center gap-14 px-6 lg:grid-cols-2">
           <div>
             <SectionHeading
-              eyebrow="Certified QuickBooks ProAdvisors"
               title="Simplify Your Business. Take Control of Your Finances."
             />
             <Reveal delay={0.1}>
@@ -146,9 +144,7 @@ export default function QuickBooksSolutionsPage() {
             </Reveal>
 
             <Reveal delay={0.2}>
-              <p className="mt-8 text-xs font-extrabold uppercase tracking-[0.14em] text-brand-muted/70">
-                Built for
-              </p>
+              <p className="mt-8 text-sm font-semibold text-brand-ink">Built for</p>
               <ul className="mt-3 flex flex-wrap gap-2.5">
                 {audiences.map((a) => (
                   <li
@@ -221,7 +217,7 @@ export default function QuickBooksSolutionsPage() {
       {/* Why QuickBooks */}
       <section className="bg-brand-haze py-20 pt-28">
         <div className="mx-auto max-w-7xl px-6">
-          <SectionHeading eyebrow="The Case for QuickBooks" title="Why Choose QuickBooks?" center />
+          <SectionHeading title="Why Choose QuickBooks?" center />
 
           <Stagger className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" step={0.07}>
             {benefits.map(({ text, icon: Icon }) => (
@@ -272,7 +268,6 @@ export default function QuickBooksSolutionsPage() {
 
             <div>
               <SectionHeading
-                eyebrow="Complete Business Solution"
                 title="More Than Software — A Complete Business Solution"
               />
               <Reveal delay={0.12}>
@@ -290,10 +285,7 @@ export default function QuickBooksSolutionsPage() {
                     lift
                     className="group relative overflow-hidden rounded-2xl border border-brand-line bg-white p-5 transition-colors hover:border-brand/40"
                   >
-                    <span className="font-mono text-xs font-semibold tracking-[0.18em] text-brand-muted/60">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <h3 className="mt-2 font-heading text-[0.95rem] font-extrabold leading-snug text-brand-ink">
+                    <h3 className="font-heading text-[0.95rem] font-extrabold leading-snug text-brand-ink">
                       {item}
                     </h3>
                     <span className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-brand-sky transition-transform duration-300 group-hover:scale-x-100" />
@@ -317,7 +309,7 @@ export default function QuickBooksSolutionsPage() {
       {/* Closing call to action */}
       <section className="py-20">
         <Reveal className="mx-auto max-w-7xl px-6">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand to-brand-dark px-8 py-14 text-center text-white sm:px-14">
+          <div className="relative overflow-hidden rounded-3xl bg-brand-dark px-8 py-14 text-center text-white sm:px-14">
             <Image
               src="/assets/img/service/quickbooks-proadvisor.png"
               alt="Intuit QuickBooks Certified ProAdvisor — Online"

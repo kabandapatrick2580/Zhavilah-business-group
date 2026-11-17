@@ -33,7 +33,6 @@ const rightColumn: HistoryBlock[] = [
   {
     kind: "card",
     icon: "file-text",
-    eyebrow: "Warehouse Services",
     heading: "Comprehensive Documentation",
     text: "Our expert team handles all cargo documentation requirements, ensuring your goods are properly recorded and compliant with all regulatory standards throughout the storage period.",
   },
@@ -54,7 +53,7 @@ const rightColumn: HistoryBlock[] = [
     kind: "card",
     icon: "shield",
     heading: "Bond Management and Compliance",
-    text: "Trust ZHAVILAH BUSINESS GROUP Ltd for expert bond management and compliance services, along with seamless import and export facilitation for your goods in transit and transshipment services.",
+    text: "Trust ZHAVILAH BUSINESS GROUP Ltd for expert bond management and compliance services, along with import and export support for your goods in transit and transshipment services.",
   },
 ];
 

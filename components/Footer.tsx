@@ -19,9 +19,9 @@ export default async function Footer() {
     <footer className="zbg-site-footer">
       {/* Subscribe band */}
       <div className="bg-primary">
-        <Reveal className="mx-auto max-w-3xl px-6 py-16 text-center" blur>
+        <Reveal className="mx-auto max-w-3xl px-6 py-16 text-center">
           <h2 className="font-heading text-3xl font-extrabold text-white sm:text-4xl">
-            Stay Connected! Subscribe For <span className="text-sky">The Latest Updates</span>
+            Get updates by email
           </h2>
           <SubscribeForm />
         </Reveal>

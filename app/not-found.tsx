@@ -18,10 +18,10 @@ export default function NotFound() {
             4<span className="text-brand-sky">0</span>4
           </h1>
           <h2 className="mt-4 font-heading text-3xl font-extrabold text-brand-ink sm:text-4xl">
-            Oops! Page not found.
+            This page doesn&apos;t exist.
           </h2>
           <p className="mt-4 leading-relaxed text-brand-muted">
-            The page you are looking for is not available or doesn&apos;t belong to this website!
+            The link may be broken or the page may have moved. Head back to the homepage to find what you need.
           </p>
           <Link
             href="/"

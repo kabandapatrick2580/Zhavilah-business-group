@@ -64,7 +64,7 @@ export default function Countdown({
           >
             {parts ? String(parts[unit]).padStart(2, "0") : "––"}
           </span>
-          <span className={`mt-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] ${caption}`}>
+          <span className={`mt-1.5 block text-xs font-medium capitalize ${caption}`}>
             {unit}
           </span>
         </li>

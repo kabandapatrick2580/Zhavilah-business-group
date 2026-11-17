@@ -14,7 +14,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion, useInView, useReducedMotion } from "framer-motion";
-import { CurtainReveal, EASE, Reveal } from "@/components/motion/primitives";
+import { CurtainReveal, EASE } from "@/components/motion/primitives";
 import { SERVICE_ICONS, type ServiceIconName } from "@/components/services/serviceIcons";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 
@@ -42,7 +42,6 @@ export type HistoryImage = {
 
 export type HistoryCard = {
   kind: "card";
-  eyebrow?: string;
   heading: string;
   text: string;
   /** Shown in the node badge and echoed by the connecting trace. */
@@ -161,18 +160,10 @@ function NodeIcon({ name }: { name?: ServiceIconName }) {
 }
 
 /** Connection point where a trace meets a card. */
-function Port({ delay, className }: { delay: number; className: string }) {
-  const reduce = useReducedMotion();
+function Port({ className }: { className: string }) {
   return (
     <span className={`absolute z-20 flex size-2.5 items-center justify-center ${className}`}>
       <span className="size-2.5 rounded-full border-2 border-white bg-brand-sky" />
-      {!reduce && (
-        <motion.span
-          className="absolute size-2.5 rounded-full bg-brand-sky"
-          animate={{ scale: [1, 3.2], opacity: [0.7, 0] }}
-          transition={{ duration: 1.4, delay, repeat: Infinity, repeatDelay: 1.2, ease: "easeOut" }}
-        />
-      )}
     </span>
   );
 }
@@ -181,17 +172,14 @@ function CardNode({
   block,
   nodeId,
   index,
-  total,
   register,
 }: {
   block: HistoryCard;
   nodeId: string;
   index: number;
-  total: number;
   register: (id: string, el: HTMLElement | null) => void;
 }) {
   const reduce = useReducedMotion();
-  const delay = index * PULSE_STEP;
 
   return (
     <motion.article
@@ -205,9 +193,9 @@ function CardNode({
     >
       {/* Ports: sides on the two-column layout, bottom-centre when stacked.
           Breakpoint matches the grid (md) so they line up with the traces. */}
-      <Port delay={delay} className="left-0 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 md:flex" />
-      <Port delay={delay} className="right-0 top-1/2 hidden -translate-y-1/2 translate-x-1/2 md:flex" />
-      <Port delay={delay} className="bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 md:hidden" />
+      <Port className="left-0 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 md:flex" />
+      <Port className="right-0 top-1/2 hidden -translate-y-1/2 translate-x-1/2 md:flex" />
+      <Port className="bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 md:hidden" />
 
       <header className="flex items-center gap-4">
         <motion.span
@@ -216,34 +204,7 @@ function CardNode({
           transition={{ type: "spring", stiffness: 300, damping: 16 }}
         >
           <NodeIcon name={block.icon} />
-          {!reduce && (
-            // Fires as the incoming trace reaches this node.
-            <motion.span
-              aria-hidden="true"
-              className="absolute inset-0 rounded-xl ring-2 ring-brand-sky"
-              animate={{ scale: [1, 1.35], opacity: [0.85, 0] }}
-              transition={{
-                duration: 1.2,
-                delay,
-                repeat: Infinity,
-                repeatDelay: 1.4,
-                ease: "easeOut",
-              }}
-            />
-          )}
         </motion.span>
-
-        <div className="min-w-0">
-          {block.eyebrow && (
-            <span className="block text-xs font-extrabold uppercase tracking-[0.12em] text-brand">
-              {block.eyebrow}
-            </span>
-          )}
-          <span className="block font-mono text-xs font-semibold tracking-[0.18em] text-brand-muted/70">
-            {String(index + 1).padStart(2, "0")}
-            <span className="text-brand-muted/40"> / {String(total).padStart(2, "0")}</span>
-          </span>
-        </div>
       </header>
 
       <h3 className="mt-5 font-heading text-2xl font-extrabold text-brand-ink">{block.heading}</h3>
@@ -300,7 +261,7 @@ function ImageBlock({ block, index }: { block: HistoryImage; index: number }) {
           assistive tech to avoid announcing the same string twice. */}
       <span
         aria-hidden="true"
-        className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-md"
+        className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-brand-deep/70 px-3 py-1.5 text-xs font-semibold text-white"
       >
         {Icon && <Icon className="size-3.5 text-brand-sky" />}
         {block.alt}
@@ -373,7 +334,6 @@ export default function ServiceHistory({
                   strokeWidth={3}
                   strokeLinecap="round"
                   strokeDasharray="0.14 1"
-                  style={{ filter: "drop-shadow(0 0 5px rgba(124,192,245,0.9))" }}
                   initial={{ strokeDashoffset: 0.14 }}
                   animate={{ strokeDashoffset: -1 }}
                   transition={{
@@ -402,7 +362,6 @@ export default function ServiceHistory({
                   nodeId={nodeId}
                   block={block}
                   index={order[nodeId] ?? 0}
-                  total={count}
                   register={register}
                 />
               );
@@ -410,14 +369,6 @@ export default function ServiceHistory({
           </div>
         ))}
       </div>
-
-      <Reveal className="mx-auto mt-10 max-w-7xl px-6" delay={0.1}>
-        <p className="flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-brand-muted/70">
-          <span className="inline-block h-px w-8 bg-brand-line" />
-          One connected service network
-          <span className="inline-block h-px w-8 bg-brand-line" />
-        </p>
-      </Reveal>
     </section>
   );
 }

@@ -64,13 +64,7 @@ export default function UpcomingIntake({
   return (
     <section className="bg-white pt-16 pb-4">
       <div className="mx-auto max-w-7xl px-6">
-        <article className="relative isolate overflow-hidden rounded-3xl bg-[linear-gradient(118deg,#17133e_0%,#251f61_56%,#30287e_100%)] px-7 py-10 text-white shadow-[0_30px_70px_rgba(25,20,65,0.25)] sm:px-12 sm:py-14">
-          {/* The light-blue wash from the top right, matching the wide service
-              card on the homepage so the two read as one family. */}
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-[radial-gradient(72%_130%_at_87%_12%,rgba(124,192,245,0.26)_0%,rgba(23,19,62,0)_62%)]"
-          />
+        <article className="relative isolate overflow-hidden rounded-3xl bg-brand px-7 py-10 text-white shadow-[0_30px_70px_rgba(25,20,65,0.25)] sm:px-12 sm:py-14">
           <div
             aria-hidden="true"
             className="absolute -right-24 -top-28 -z-10 size-80 rounded-full border border-white/10"
@@ -78,8 +72,7 @@ export default function UpcomingIntake({
 
           <div className="grid gap-10 lg:grid-cols-[1.15fr_.85fr] lg:items-center">
             <div>
-              <p className="flex items-center gap-2.5 text-xs font-extrabold uppercase tracking-[0.14em] text-brand-sky">
-                <span className="h-0.5 w-7 bg-brand-sky" />
+              <p className="text-sm font-semibold text-brand-sky">
                 {open ? "Applications open now" : "Next intake"}
               </p>
 
@@ -99,7 +92,7 @@ export default function UpcomingIntake({
                         <Icon className="size-4" />
                       </span>
                       <div>
-                        <dt className="text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">
+                        <dt className="text-xs font-medium text-white/65">
                           {label}
                         </dt>
                         <dd className="mt-0.5 text-sm font-semibold">{value}</dd>
@@ -168,7 +161,7 @@ export default function UpcomingIntake({
               room and the larger type. */}
           {payment.length > 0 ? (
             <div className="mt-10 rounded-2xl border border-white/15 bg-white/[0.06] p-6 sm:p-7">
-              <p className="flex items-center gap-2.5 text-xs font-extrabold uppercase tracking-[0.14em] text-brand-sky">
+              <p className="flex items-center gap-2.5 text-sm font-semibold text-brand-sky">
                 <Banknote className="size-4" />
                 Payment details
               </p>
@@ -180,7 +173,7 @@ export default function UpcomingIntake({
                       <Icon className="size-4" />
                     </span>
                     <div className="min-w-0">
-                      <dt className="text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">
+                      <dt className="text-xs font-medium text-white/65">
                         {label}
                       </dt>
                       {/* `break-words` so a long account number wraps inside
