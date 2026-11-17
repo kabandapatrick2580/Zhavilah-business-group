@@ -6,7 +6,7 @@ import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRight, BadgeCheck, Calculator, Check, ChevronDown, CircleDollarSign,
-  FileCheck2, Globe2, GraduationCap, Truck, UsersRound,
+  FileCheck2, Globe2, GraduationCap, Truck, UsersRound, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { EASE, Reveal, Stagger, StaggerItem } from "@/components/motion/primitives";
 
@@ -69,6 +69,54 @@ const DEFAULT_HERO: HeroContent = {
   ctaHref: "/industries",
 };
 
+/**
+ * Services that follow the opening slide in the hero carousel. Each uses the
+ * photograph already tied to that service on the homepage cards.
+ */
+const SERVICE_SLIDES: (HeroContent & { label: string; position?: string })[] = [
+  {
+    label: "Accounting",
+    heading: "Accounting you can *rely on.*",
+    subheading: "Bookkeeping, financial statements and day-to-day accounting set up around how your business runs.",
+    imageUrl: "/assets/img/service/service-1.jpg",
+    imageAlt: "Colleagues reviewing accounts together around a table",
+    ctaLabel: "Accounting services",
+    ctaHref: "/accounting-services",
+  },
+  {
+    label: "Tax",
+    heading: "Tax done *right and on time.*",
+    subheading: "Planning and compliance for corporate and personal income tax, VAT, payroll taxes and withholding tax.",
+    imageUrl: "/assets/img/service/service-2.jpg",
+    imageAlt: "Advisors going through tax documents with a client",
+    ctaLabel: "Tax advisory",
+    ctaHref: "/tax-advisory",
+  },
+  {
+    label: "Audit",
+    heading: "An independent view of *your numbers.*",
+    subheading: "Audit and assurance that reviews your books and controls and gives you a clear report.",
+    imageUrl: "/assets/img/service/service-3.jpg",
+    imageAlt: "Two clients shaking hands with an auditor",
+    ctaLabel: "Audit & assurance",
+    ctaHref: "/auditing-assurance",
+    position: "60% 40%",
+  },
+  {
+    label: "Customs",
+    heading: "Cleared, forwarded, *delivered.*",
+    subheading: "Customs clearing and forwarding for businesses that import and export, with the paperwork handled for you.",
+    imageUrl: "/assets/img/service/service-4.jpg",
+    imageAlt: "Consultants reviewing shipping documents with a client",
+    ctaLabel: "Customs clearing",
+    ctaHref: "/customs-clearing-forwarding",
+    position: "40% 40%",
+  },
+];
+
+/** Time each slide stays up. The progress bar's CSS animation uses the same value. */
+const SLIDE_SECONDS = 8;
+
 type HeadlineToken = { text: string; highlight: boolean };
 
 /**
@@ -108,7 +156,7 @@ const TYPE_PAUSE_MS = 220; // extra beat after punctuation
  * copy instead of hearing it assembled letter by letter. With reduced motion the
  * headline is simply present. `onDone` lets the rest of the hero follow it in.
  */
-function TypedHeadline({ heading, onDone }: { heading: string; onDone: () => void }) {
+function TypedHeadline({ heading, onDone, startDelay = TYPE_START_MS }: { heading: string; onDone: () => void; startDelay?: number }) {
   const reduce = useReducedMotion();
   const words = parseHeadline(heading).flatMap((token) =>
     token.text.split(/\s+/).filter(Boolean).map((text) => ({ text, highlight: token.highlight })),
@@ -142,9 +190,9 @@ function TypedHeadline({ heading, onDone }: { heading: string; onDone: () => voi
       const typed = plain[n - 1];
       timer = setTimeout(tick, /[.,;:!?]/.test(typed) ? TYPE_STEP_MS + TYPE_PAUSE_MS : TYPE_STEP_MS);
     };
-    timer = setTimeout(tick, TYPE_START_MS);
+    timer = setTimeout(tick, startDelay);
     return () => clearTimeout(timer);
-  }, [reduce, total, plain]);
+  }, [reduce, total, plain, startDelay]);
 
   let offset = 0;
   return (
@@ -173,13 +221,11 @@ function TypedHeadline({ heading, onDone }: { heading: string; onDone: () => voi
   );
 }
 
-export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }) {
+/** One slide's text column. Remounted per slide, so the typing starts fresh. */
+function HeroCopy({ slide, startDelay }: { slide: HeroContent; startDelay: number }) {
   const reduce = useReducedMotion();
-  const [openFaq, setOpenFaq] = useState(0);
   const [typed, setTyped] = useState(false);
 
-  // Entrance timing for the hero column, which animates on load rather than
-  // on scroll because it is already in view.
   // The supporting copy follows the headline: it waits for the typing to
   // finish, then rises in once.
   const enter = (delay: number) => ({
@@ -189,30 +235,85 @@ export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }
   });
 
   return (
+    <div className="zbg-hero-slide-copy">
+      <TypedHeadline heading={slide.heading} onDone={() => setTyped(true)} startDelay={startDelay} />
+
+      <motion.p {...enter(0.05)}>{slide.subheading}</motion.p>
+
+      <motion.div className="zbg-hero-actions" {...enter(0.18)}>
+        <motion.div whileHover={reduce ? undefined : { y: -3 }} whileTap={{ scale: 0.97 }}>
+          <Link href={slide.ctaHref} className="zbg-button">
+            {slide.ctaLabel} <ArrowRight />
+          </Link>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+}
+
+export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }) {
+  const reduce = useReducedMotion();
+  const [openFaq, setOpenFaq] = useState(0);
+  const slides = [{ ...hero, label: "Overview", position: undefined as string | undefined }, ...SERVICE_SLIDES];
+  const [active, setActive] = useState(0);
+  const [hovering, setHovering] = useState(false);
+  const [firstLoad, setFirstLoad] = useState(true);
+  // The progress bars only start once the page is interactive; otherwise their
+  // CSS animation can run out during hydration and skip the opening slide.
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
+  const paused = hovering;
+  const autoplay = !reduce;
+  const go = (i: number) => {
+    setFirstLoad(false);
+    setActive((i + slides.length) % slides.length);
+  };
+
+  return (
     <main className="zbg-home">
-      <section className="zbg-hero">
+      <section
+        className={`zbg-hero${paused ? " is-paused" : ""}`}
+        aria-roledescription="carousel"
+        aria-label="Featured services"
+        onPointerEnter={(e) => e.pointerType === "mouse" && setHovering(true)}
+        onPointerLeave={() => setHovering(false)}
+        onFocus={(e) => e.target.matches(":focus-visible") && setHovering(true)}
+        onBlur={() => setHovering(false)}
+      >
         <div className="zbg-shell zbg-hero-grid">
           <div className="zbg-hero-copy">
-
-            <TypedHeadline heading={hero.heading} onDone={() => setTyped(true)} />
-
-            <motion.p {...enter(0.05)}>{hero.subheading}</motion.p>
-
-            <motion.div className="zbg-hero-actions" {...enter(0.18)}>
-              <motion.div whileHover={reduce ? undefined : { y: -3 }} whileTap={{ scale: 0.97 }}>
-                <Link href={hero.ctaHref} className="zbg-button">
-                  {hero.ctaLabel} <ArrowRight />
-                </Link>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={active}
+                exit={{ opacity: 0, y: reduce ? 0 : -8 }}
+                transition={{ duration: 0.25, ease: EASE }}
+                aria-live={autoplay && !paused ? "off" : "polite"}
+              >
+                <HeroCopy slide={slides[active]} startDelay={firstLoad ? TYPE_START_MS : 150} />
               </motion.div>
-              <a href="tel:+250788221231" className="zbg-call">
-                <span>
-                  <UsersRound />
-                </span>
-                <small>
-                  Talk to our team<strong>+250 788 221 231</strong>
-                </small>
-              </a>
-            </motion.div>
+            </AnimatePresence>
+
+            {/* Fixed: it does not type, fade or move with the slides. */}
+            <a href="tel:+250788221231" className="zbg-call zbg-hero-call">
+              <span>
+                <UsersRound />
+              </span>
+              <small>
+                Talk to our team<strong>+250 788 221 231</strong>
+              </small>
+            </a>
+
+            {/* Invisible timer: its CSS animation ends once per slide and
+                advances the carousel, and it pauses with the hero. */}
+            {autoplay && ready && (
+              <span
+                key={active}
+                aria-hidden="true"
+                className="zbg-hero-timer"
+                style={{ animationDuration: `${SLIDE_SECONDS}s` }}
+                onAnimationEnd={() => go(active + 1)}
+              />
+            )}
           </div>
 
           <motion.div
@@ -221,15 +322,32 @@ export default function HomePage({ hero = DEFAULT_HERO }: { hero?: HeroContent }
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2, ease: EASE }}
           >
+            {slides.map((slide, i) => (
+              <div
+                key={slide.imageUrl}
+                className={`zbg-slide${i === active ? " is-active" : ""}`}
+                style={{ "--pos": slide.position ?? (i === 0 ? "50% 22%" : "50% 40%") } as React.CSSProperties}
+                aria-hidden={i === active ? undefined : true}
+              >
+                <Image
+                  src={slide.imageUrl}
+                  alt={i === active ? slide.imageAlt : ""}
+                  fill
+                  priority={i === 0}
+                  sizes="(max-width: 900px) 85vw, (max-width: 1099px) 590px, 60vw"
+                  className="object-cover"
+                />
+              </div>
+            ))}
 
-            <Image
-              src={hero.imageUrl}
-              alt={hero.imageAlt}
-              fill
-              priority
-              sizes="(max-width: 900px) 85vw, (max-width: 1099px) 590px, 60vw"
-              className="object-cover"
-            />
+            <div className="zbg-hero-nav">
+              <button type="button" onClick={() => go(active - 1)} aria-label="Previous slide">
+                <ChevronLeft />
+              </button>
+              <button type="button" onClick={() => go(active + 1)} aria-label="Next slide">
+                <ChevronRight />
+              </button>
+            </div>
           </motion.div>
         </div>
       </section>
