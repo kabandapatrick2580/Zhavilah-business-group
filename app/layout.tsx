@@ -28,13 +28,23 @@ export const metadata: Metadata = {
     icon: "/assets/img/favicon-1.png",
     apple: "/assets/img/favicon-1.png",
   },
-  alternates: { canonical: "https://zhavilahbusinessgroup.com/" },
+  // Relative, so each page canonicalises to itself. An absolute URL here would
+  // tell search engines that every page is a duplicate of the homepage.
+  alternates: { canonical: "./" },
+  // Site-ownership tags for Google Search Console and Bing Webmaster Tools.
+  // Set the env vars to enable them; unset, no tag is rendered.
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION || undefined,
+    other: process.env.BING_SITE_VERIFICATION
+      ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION }
+      : undefined,
+  },
   openGraph: {
     title: "ZHAVILAH BUSINESS GROUP Ltd - One Stop Solution of Choice to Every Business",
     description:
       "Global consulting firm offering accounting, taxation, auditing, business advisory, customs clearing, warehousing, logistics and training services in Rwanda.",
     type: "website",
-    url: "https://zhavilahbusinessgroup.com/",
+    url: "./",
     images: ["/assets/img/logo-2.png"],
   },
 };

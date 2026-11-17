@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -11,9 +11,8 @@ import {
   useReducedMotion,
   useScroll,
 } from "framer-motion";
-import { ArrowRight, ChevronDown, Mail, Menu, Phone, X } from "lucide-react";
-import { CONTACT, NAV, SOCIALS, type NavItem } from "@/lib/site";
-import { SocialIcon } from "@/components/icons";
+import { ArrowRight, ChevronDown, Menu, X } from "lucide-react";
+import { NAV, type NavItem } from "@/lib/site";
 import { EASE } from "@/components/motion/primitives";
 
 function isActive(pathname: string, item: NavItem): boolean {
@@ -27,69 +26,32 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [dropdown, setDropdown] = useState<string | null>(null);
-  const [condensed, setCondensed] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-  // Tightens the bar once the page has scrolled past the hero's first fold.
-  // The gap between the two thresholds stops the bar's own height change from
-  // nudging the scroll position back across a single cut-off and flickering.
+  // Transparent at the top of the page, solid once it has scrolled. The gap
+  // between the two thresholds stops the bar's own height change from nudging
+  // the scroll position back across a single cut-off and flickering.
   const { scrollY } = useScroll();
   useMotionValueEvent(scrollY, "change", (latest) =>
-    setCondensed((was) => (was ? latest > 20 : latest > 80)),
+    setScrolled((was) => (was ? latest > 12 : latest > 40)),
   );
 
-  // The header is sticky with a negative `top` equal to the top bar's height,
-  // so the contact strip scrolls away and the main bar pins to the viewport.
-  const topBarRef = useRef<HTMLDivElement>(null);
-  const [topBarHeight, setTopBarHeight] = useState(0);
-  useEffect(() => {
-    const el = topBarRef.current;
-    if (!el) return;
-    const observer = new ResizeObserver(() => setTopBarHeight(el.offsetHeight));
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+  // Every page except the homepage opens on a dark banner, so while the bar is
+  // transparent it switches to light text and a white logo there.
+  const onDark = pathname !== "/" && !scrolled;
 
   return (
-    // The whole header is sticky: a sticky child only sticks within its
-    // parent, so the main bar alone would scroll away with the header.
-    <header className="zbg-site-header sticky z-40" style={{ top: -topBarHeight }}>
-      {/* Top bar */}
-      <div ref={topBarRef} className="zbg-header-top hidden bg-primary text-white/90 md:block">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-2 text-sm">
-          <div className="flex items-center gap-6">
-            <a href={CONTACT.emailHref} className="flex items-center gap-2 hover:text-white">
-              <Mail className="size-4" /> {CONTACT.email}
-            </a>
-            <a href={CONTACT.phoneHref} className="flex items-center gap-2 hover:text-white">
-              <Phone className="size-4" /> {CONTACT.phone}
-            </a>
-          </div>
-          <div className="zbg-social-row flex items-center gap-4">
-            {SOCIALS.map((s) => (
-              <motion.a
-                key={s.label}
-                href={s.href}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={s.label}
-                whileHover={reduce ? undefined : { y: -2, scale: 1.12 }}
-                whileTap={{ scale: 0.9 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                className="opacity-90 transition hover:opacity-100"
-              >
-                <SocialIcon name={s.icon} className="size-4" />
-              </motion.a>
-            ))}
-          </div>
-        </div>
-      </div>
-
+    <header
+      className="zbg-site-header fixed inset-x-0 top-0 z-40"
+      data-scrolled={scrolled ? "" : undefined}
+      data-tone={onDark ? "light" : undefined}
+    >
       {/* Main bar */}
       <motion.div
-        className="relative z-40 border-b border-line bg-white shadow-sm"
+        className="relative z-40"
         animate={{
-          paddingTop: condensed ? 0 : 6,
-          paddingBottom: condensed ? 0 : 6,
+          paddingTop: scrolled ? 0 : 6,
+          paddingBottom: scrolled ? 0 : 6,
         }}
         transition={{ duration: 0.35, ease: EASE }}
       >
@@ -101,12 +63,12 @@ export default function Header() {
               transition={{ type: "spring", stiffness: 400, damping: 18 }}
             >
               <Image
-                src="/assets/img/logo.png"
+                src="/assets/img/logo-2.png"
                 alt="ZHAVILAH BUSINESS GROUP"
                 width={500}
                 height={186}
                 priority
-                className="h-10 w-auto"
+                className="zbg-logo h-10 w-auto"
               />
             </motion.span>
           </Link>

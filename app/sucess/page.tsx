@@ -5,6 +5,7 @@ import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export const metadata: Metadata = {
   title: "Message Sent",
+  robots: { index: false, follow: false },
 };
 
 export default function SuccessPage() {

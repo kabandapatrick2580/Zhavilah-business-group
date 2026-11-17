@@ -15,7 +15,7 @@ export default function Breadcrumb({
   image?: string;
 }) {
   return (
-    <section className="relative isolate flex min-h-[300px] items-center overflow-hidden">
+    <section className="relative isolate flex min-h-[380px] items-center overflow-hidden pt-[84px]">
       {/* The banner photograph is an optimised, priority-loaded image rather
           than a CSS background, so it is sized per viewport. */}
       <Image src={image} alt="" fill priority sizes="100vw" className="-z-20 object-cover" />
