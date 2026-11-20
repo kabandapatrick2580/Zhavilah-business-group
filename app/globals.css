@@ -205,6 +205,12 @@ html {
 
 /* Transparent header over a dark banner: light text and a white logo until it scrolls solid. */
 .zbg-logo { transition:filter .3s ease; }
+/* The homepage hero is pale on the left, so the bar stays dark there even before hydration. */
+body:has(.zbg-hero) .zbg-site-header[data-tone="light"] .zbg-logo { filter:none; }
+body:has(.zbg-hero) .zbg-site-header[data-tone="light"]>div:first-child nav>a,body:has(.zbg-hero) .zbg-site-header[data-tone="light"]>div:first-child nav>div>button,body:has(.zbg-hero) .zbg-site-header[data-tone="light"]>div:first-child nav>div>a { color:var(--z-ink) !important; }
+body:has(.zbg-hero) .zbg-site-header[data-tone="light"]>div:first-child nav>div>button:after,body:has(.zbg-hero) .zbg-site-header[data-tone="light"]>div:first-child nav>div>a:after { background:var(--z-brand); }
+body:has(.zbg-hero) .zbg-site-header[data-tone="light"] a.bg-primary { background:var(--z-brand) !important; color:#fff !important; box-shadow:0 7px 18px rgba(37,31,97,.2); }
+body:has(.zbg-hero) .zbg-site-header[data-tone="light"]>div:first-child .lg\:hidden { color:var(--z-brand) !important; }
 .zbg-site-header[data-tone="light"] .zbg-logo { filter:brightness(0) invert(1); }
 .zbg-site-header[data-tone="light"]>div:first-child nav>a,.zbg-site-header[data-tone="light"]>div:first-child nav>div>button,.zbg-site-header[data-tone="light"]>div:first-child nav>div>a { color:#fff !important; }
 .zbg-site-header[data-tone="light"]>div:first-child nav>div>button:after,.zbg-site-header[data-tone="light"]>div:first-child nav>div>a:after { background:#fff; }

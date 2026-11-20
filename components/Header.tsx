@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -38,7 +38,15 @@ export default function Header() {
 
   // Every page except the homepage opens on a dark banner, so while the bar is
   // transparent it switches to light text and a white logo there.
-  const onDark = pathname !== "/" && !scrolled;
+  //
+  // The tone is decided in the browser, not during the server render. The
+  // production build prerenders this shared layout without the real path, and
+  // React does not repair a mismatched attribute during hydration, so a tone
+  // computed during render stayed white on the homepage. The default is light
+  // (right for every inner page); the homepage switches to dark on mount.
+  const [isHome, setIsHome] = useState(false);
+  useEffect(() => setIsHome(pathname === "/"), [pathname]);
+  const onDark = !isHome && !scrolled;
 
   return (
     <header
